@@ -1,0 +1,92 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.vscode/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The Python ARM simulator control script
+arm-subdir/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# FVM (Flutter Version Management)
+.fvm/flutter_sdk
+
+# Symbolication related
+app.*.symbols
+
+# Android related
+**/android/**/generated/
+**/android/gen/
+**/android/bin/
+*.jks
+*.keystore
+*.pk8
+*.p12
+*.pem
+output.json
+
+# iOS related
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/App.framework
+**/ios/Flutter/App.podspec
+**/ios/Flutter/App.framework.zip
+**/ios/Flutter/Generated.framework
+**/ios/Flutter/Generated.framework.zip
+**/ios/Flutter/App.pds
+**/ios/DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xcworkspace
+!**/ios/Runner.xcworkspace
+
+# CocoaPods
+**/ios/Pods/
+**/ios/.symlinks/
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Bundle and secrets
+*.env
+*.env.*
+*.zip
+*.tar.gz
+*.rar
+
+# Flutter build artifacts
+*.apk
+*.aab
+*.ipa
+
+# Exceptions to above rules
+!.keep
+
+# Firebase related (Secrets)
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json
