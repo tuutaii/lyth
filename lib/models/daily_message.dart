@@ -22,6 +22,18 @@ class DailyMessage {
   /// Nguồn gốc: 'manual' (admin viết tay) hoặc 'auto' (fallback)
   final String source;
 
+  /// Danh mục chủ đề: 'IDENTITY', 'LOVE', 'CAREER', v.v.
+  final String category;
+
+  /// Tên màu sắc may mắn (Vd: "Xanh Lục Bảo")
+  final String luckyColorName;
+
+  /// Mã màu Hex (Vd: "#43A047")
+  final String luckyColorHex;
+
+  /// Ý nghĩa may mắn của màu sắc trong ngày
+  final String luckyColorMeaning;
+
   const DailyMessage({
     required this.dateKey,
     required this.header,
@@ -29,6 +41,10 @@ class DailyMessage {
     this.dos = const [],
     this.donts = const [],
     this.source = 'manual',
+    this.category = 'IDENTITY',
+    this.luckyColorName = '',
+    this.luckyColorHex = '',
+    this.luckyColorMeaning = '',
   });
 
   /// Key format: YYYY-MM-DD
@@ -42,9 +58,16 @@ class DailyMessage {
       dateKey: dateKey,
       header: data['header'] as String? ?? '',
       body: data['body'] as String? ?? '',
-      dos: (data['dos'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
-      donts: (data['donts'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      dos: (data['dos'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+          [],
+      donts:
+          (data['donts'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+              [],
       source: data['source'] as String? ?? 'manual',
+      category: (data['category'] as String?)?.toUpperCase() ?? 'IDENTITY',
+      luckyColorName: data['luckyColorName'] as String? ?? '',
+      luckyColorHex: data['luckyColorHex'] as String? ?? '',
+      luckyColorMeaning: data['luckyColorMeaning'] as String? ?? '',
     );
   }
 
@@ -54,6 +77,10 @@ class DailyMessage {
         'dos': dos,
         'donts': donts,
         'source': source,
+        'category': category,
+        'luckyColorName': luckyColorName,
+        'luckyColorHex': luckyColorHex,
+        'luckyColorMeaning': luckyColorMeaning,
         'updatedAt': DateTime.now().toIso8601String(),
       };
 }

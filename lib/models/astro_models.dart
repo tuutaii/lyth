@@ -217,6 +217,9 @@ class UserAstroProfile {
   String dailyInsightCategory;
   List<String> adviceDos;
   List<String> adviceDonts;
+  String luckyColorName;
+  String luckyColorHex;
+  String luckyColorMeaning;
 
   UserAstroProfile({
     required this.name,
@@ -234,6 +237,9 @@ class UserAstroProfile {
     this.dailyInsightCategory = '',
     this.adviceDos = const [],
     this.adviceDonts = const [],
+    this.luckyColorName = '',
+    this.luckyColorHex = '',
+    this.luckyColorMeaning = '',
   });
 
   static UserAstroProfile get sample => UserAstroProfile(

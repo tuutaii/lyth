@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +12,12 @@ import '../services/firestore_service.dart';
 import '../services/astrology_api_service.dart';
 import '../services/astro_data_mapper.dart';
 import '../services/gemini_service.dart';
-import 'package:shimmer/shimmer.dart';
+
+// Import các Tab đã tách riêng
+import 'dashboard/home_tab.dart';
+import 'dashboard/sky_tab.dart';
+import 'dashboard/love_tab.dart';
+import 'dashboard/profile_tab.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,6 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   double _scrollOffset = 0;
+  int _currentIndex = 0;
   late AnimationController _contentFadeController;
 
   @override
@@ -44,7 +52,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  // ── Fetch dữ liệu & Xử lý Cache ──────────────────────────────
+  // ── Data Fetching Logic ──────────────────────────────────────
 
   Future<UserAstroProfile> _fetchAstroData(
       UserModel user, DateTime date) async {
@@ -67,7 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     if (firebaseMessage == null && cachedAiData != null) {
       final profile = AstroDataMapper.mapNASADataToProfile(
-          user: user, sunLon: 0, moonLon: 0, firebaseMessage: null);
+          user: user, planetLongitudes: {}, firebaseMessage: null);
       profile.dailyInsightHeader = cachedAiData['header'] ?? '';
       profile.dailyInsightBody = cachedAiData['body'] ?? '';
       profile.dailyInsightCategory =
@@ -85,37 +93,30 @@ class _DashboardScreenState extends State<DashboardScreen>
     final lat = user.latitude ?? 21.0285;
     final lng = user.longitude ?? 105.8542;
 
-    try {
-      final results = await Future.wait([
-        apiService.getEclipticLongitude(
-            planetId: "10", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "301", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "199", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "299", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "499", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "599", lat: lat, lng: lng, date: date),
-        apiService.getEclipticLongitude(
-            planetId: "699", lat: lat, lng: lng, date: date),
-      ]);
+    Map<String, double> planetData = {};
 
-      final planetData = {
-        'Sun': results[0] ?? 0.0,
-        'Moon': results[1] ?? 0.0,
-        'Mercury': results[2] ?? 0.0,
-        'Venus': results[3] ?? 0.0,
-        'Mars': results[4] ?? 0.0,
-        'Jupiter': results[5] ?? 0.0,
-        'Saturn': results[6] ?? 0.0,
-      };
+    if (firebaseMessage == null) {
+      try {
+        final planetIds = {
+          'Sun': '10',
+          'Moon': '301',
+          'Mercury': '199',
+          'Venus': '299',
+          'Mars': '499',
+          'Jupiter': '599',
+          'Saturn': '699'
+        };
 
-      Map<String, dynamic>? aiData;
-      if (firebaseMessage == null) {
-        aiData = await GeminiService()
+        final results = await Future.wait(planetIds.entries.map((e) =>
+            apiService.getEclipticLongitude(
+                planetId: e.value, lat: lat, lng: lng, date: date)));
+
+        int i = 0;
+        for (var key in planetIds.keys) {
+          planetData[key] = results[i++] ?? 0.0;
+        }
+
+        final aiData = await GeminiService()
             .generateDailyInsightJSON(user: user, planets: planetData);
         if (aiData != null) {
           await FirebaseFirestore.instance
@@ -132,31 +133,28 @@ class _DashboardScreenState extends State<DashboardScreen>
             'is_ai_generated': true,
             'created_at': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
-        }
-      }
 
-      final profile = AstroDataMapper.mapNASADataToProfile(
-          user: user,
-          sunLon: planetData['Sun']!,
-          moonLon: planetData['Moon']!,
-          firebaseMessage: firebaseMessage);
-      if (aiData != null) {
-        profile.dailyInsightHeader = aiData['header'] ?? '';
-        profile.dailyInsightBody = aiData['body'] ?? '';
-        profile.dailyInsightCategory =
-            (aiData['category'] ?? "IDENTITY").toString().toUpperCase();
-        if (aiData['dos'] != null) {
-          profile.adviceDos = List<String>.from(aiData['dos']);
+          firebaseMessage = DailyMessage(
+            dateKey: dateStr,
+            header: aiData['header'] ?? '',
+            body: aiData['body'] ?? '',
+            dos: List<String>.from(aiData['dos'] ?? []),
+            donts: List<String>.from(aiData['donts'] ?? []),
+            category: aiData['category'] ?? 'General',
+          );
         }
-        if (aiData['donts'] != null) {
-          profile.adviceDonts = List<String>.from(aiData['donts']);
-        }
+      } catch (e) {
+        debugPrint('⚠️ NASA/Gemini error: $e');
       }
-      _contentFadeController.forward(from: 0.0);
-      return profile;
-    } catch (e) {
-      return UserAstroProfile.sample;
     }
+
+    final profile = AstroDataMapper.mapNASADataToProfile(
+        user: user,
+        planetLongitudes: planetData,
+        firebaseMessage: firebaseMessage);
+
+    _contentFadeController.forward(from: 0.0);
+    return profile;
   }
 
   UserAstroProfile? _cachedProfile;
@@ -187,7 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         if (userData == null && _cachedProfile == null) {
           return const Scaffold(
               body: Center(
-                  child: CircularProgressIndicator(color: AppColors.sageMoss)));
+                  child: CircularProgressIndicator(color: AppColors.goldDeep)));
         }
 
         final future = userData != null
@@ -202,98 +200,51 @@ class _DashboardScreenState extends State<DashboardScreen>
             final isLoading =
                 astroSnapshot.connectionState == ConnectionState.waiting;
             final appBarOpacity = (_scrollOffset / 60).clamp(0.0, 1.0);
+            final dateSelectorOpacity =
+                (1.0 - (_scrollOffset / 40)).clamp(0.0, 1.0);
 
             return Scaffold(
               backgroundColor: AppColors.background,
               body: Stack(
                 children: [
-                  // 1. Rich Artistic Aura Background
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          center: const Alignment(0.7, -0.4),
-                          radius: 1.5,
-                          colors: [
-                            AppColors.surfaceSubtle.withValues(alpha: 0.5),
-                            AppColors.background,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: 0.3,
-                      child: CustomPaint(painter: AuraPainter()),
-                    ),
-                  ),
-
-                  // 2. Main Scroll Content
-                  Padding(
-                    padding: const EdgeInsets.only(top: 180),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: FadeTransition(
-                            opacity: _contentFadeController,
-                            child: SlideTransition(
-                              position: Tween<Offset>(
-                                      begin: const Offset(0, 0.05),
-                                      end: Offset.zero)
-                                  .animate(CurvedAnimation(
-                                      parent: _contentFadeController,
-                                      curve: Curves.easeOutCirc)),
-                              child:
-                                  _buildDailyInsightSection(profile, isLoading),
-                            ),
-                          ),
-                        ),
-                        const SliverToBoxAdapter(child: SizedBox(height: 120)),
-                      ],
-                    ),
-                  ),
-
-                  // 3. Fixed Elegant Header
+                  const Positioned.fill(child: MysticBackground()),
+                  _buildBody(userData, profile, isLoading),
+                  // AppBar fixed at top
                   Positioned(
                       top: 0,
                       left: 0,
                       right: 0,
                       child: _buildAppBar(appBarOpacity)),
-
-                  Positioned(
-                    top: 60,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.background
-                            .withValues(alpha: appBarOpacity * 0.9),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildDateSelector(),
-                          _buildAvatar(userData),
-                        ],
+                  // Sticky Date Selector for Home Tab with fade-out effect
+                  if (_currentIndex == 0)
+                    Positioned(
+                      top: 60,
+                      left: 0,
+                      right: 0,
+                      child: Opacity(
+                        opacity: dateSelectorOpacity,
+                        child: IgnorePointer(
+                          ignoring: dateSelectorOpacity < 0.1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.lg, vertical: 12),
+                            decoration: BoxDecoration(
+                                color: AppColors.background.withValues(
+                                    alpha: (1.0 - appBarOpacity) * 0.9)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildDateSelector(),
+                                _buildAvatar(userData)
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               bottomNavigationBar: _buildBottomNav(),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () => _showAskAstrologer(context),
-                backgroundColor: AppColors.goldAccent,
-                elevation: 6,
-                shape: const CircleBorder(),
-                child: const Icon(Icons.auto_awesome_rounded,
-                    color: Colors.white, size: 28),
-              ),
             );
           },
         );
@@ -301,235 +252,38 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── Premium UI Components ────────────────────────────────────
-
-  Widget _buildDateSelector() {
-    final now = DateTime.now();
-    final List<DateTime> displayDates =
-        List.generate(5, (i) => now.add(Duration(days: i - 1)));
-    final weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(width: 12, height: 1, color: AppColors.goldDeep),
-            const SizedBox(width: 8),
-            Text(
-              _selectedDate.day == now.day ? 'HÔM NAY' : 'DỰ BÁO',
-              style: AppTextStyles.titleSmall.copyWith(
-                  color: AppColors.goldDeep, letterSpacing: 2.0, fontSize: 9),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: displayDates.map((d) {
-            final isSelected = d.day == _selectedDate.day;
-            final isToday = d.day == now.day;
-            return GestureDetector(
-              onTap: () {
-                if (!isSelected) {
-                  setState(() {
-                    _selectedDate = d;
-                    _cachedProfile = null;
-                  });
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      weekDays[d.weekday % 7],
-                      style: AppTextStyles.titleSmall.copyWith(
-                        color: isSelected
-                            ? AppColors.textPrimary
-                            : AppColors.textMuted,
-                        fontSize: 10,
-                        fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w400,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${d.day}',
-                      style: GoogleFonts.lora(
-                        fontSize: 16,
-                        color: isSelected
-                            ? AppColors.textPrimary
-                            : (isToday
-                                ? AppColors.sageMoss
-                                : AppColors.textMuted),
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      width: isSelected ? 4 : 0,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                          color: AppColors.goldDeep, shape: BoxShape.circle),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
+  Widget _buildBody(UserModel? user, UserAstroProfile profile, bool isLoading) {
+    switch (_currentIndex) {
+      case 0:
+        return HomeTab(
+          profile: profile,
+          isLoading: isLoading,
+          scrollController: _scrollController,
+          contentFadeAnimation: _contentFadeController,
+        );
+      case 1:
+        return const SkyTab();
+      case 2:
+        return const LoveTab();
+      case 3:
+        return ProfileTab(
+          user: user,
+          profile: profile,
+          scrollController: _scrollController,
+        );
+      default:
+        return HomeTab(
+          profile: profile,
+          isLoading: isLoading,
+          scrollController: _scrollController,
+          contentFadeAnimation: _contentFadeController,
+        );
+    }
   }
 
-  Widget _buildDailyInsightSection(UserAstroProfile profile, bool isLoading) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isLoading)
-            _buildShimmerContent()
-          else
-            _buildInsightHeader(profile),
-          const SizedBox(height: 40),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                  child: _buildAdviceColumn(
-                      'Lời khuyên', profile.adviceDos, isLoading,
-                      isPositive: true)),
-              Container(
-                  width: 1,
-                  height: 100,
-                  color: AppColors.divider.withValues(alpha: 0.5)),
-              const SizedBox(width: 20),
-              Expanded(
-                  child: _buildAdviceColumn(
-                      'Lưu ý', profile.adviceDonts, isLoading,
-                      isPositive: false)),
-            ],
-          ),
-          const SizedBox(height: 50),
-          _buildAstrologicalContext(profile),
-        ],
-      ),
-    );
-  }
+  // ── UI Components ──────────────────────────────────────────
 
-  Widget _buildInsightHeader(UserAstroProfile profile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'YOUR DAY AT A GLANCE — ${profile.dailyInsightCategory.toUpperCase()}',
-          style: AppTextStyles.titleSmall.copyWith(
-              color: AppColors.goldDeep, letterSpacing: 1.5, fontSize: 10),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          profile.dailyInsightHeader,
-          style: GoogleFonts.lora(
-              fontSize: 34,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
-              height: 1.2),
-        ),
-        const SizedBox(height: 32),
-        Stack(
-          children: [
-            Positioned(
-                left: 0,
-                top: 0,
-                child: Icon(Icons.format_quote_rounded,
-                    color: AppColors.goldAccent.withValues(alpha: 0.2),
-                    size: 40)),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, top: 10),
-              child: Text(
-                profile.dailyInsightBody,
-                style: GoogleFonts.lora(
-                    fontSize: 19,
-                    color: AppColors.textPrimary.withValues(alpha: 0.9),
-                    height: 1.8),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAdviceColumn(String title, List<String> items, bool isLoading,
-      {required bool isPositive}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title.toUpperCase(),
-            style: AppTextStyles.titleSmall.copyWith(
-                color: AppColors.textMuted, letterSpacing: 2.0, fontSize: 9)),
-        const SizedBox(height: 20),
-        if (isLoading)
-          _buildShimmerList()
-        else
-          ...items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  item,
-                  style: GoogleFonts.lora(
-                      fontSize: 15,
-                      color: AppColors.textPrimary,
-                      height: 1.5,
-                      fontWeight: FontWeight.w400),
-                ),
-              )),
-      ],
-    );
-  }
-
-  Widget _buildAstrologicalContext(UserAstroProfile profile) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.auto_awesome,
-                  size: 14, color: AppColors.goldDeep),
-              const SizedBox(width: 12),
-              Text('HÀNH TINH HIỆN TẠI',
-                  style: AppTextStyles.titleSmall
-                      .copyWith(letterSpacing: 2.0, fontSize: 9)),
-              const SizedBox(width: 12),
-              const Icon(Icons.auto_awesome,
-                  size: 14, color: AppColors.goldDeep),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Năng lượng hôm nay được dẫn dắt bởi sự kết hợp giữa ${profile.sunSign.name} và ${profile.moonSign.name}.',
-            textAlign: TextAlign.center,
-            style:
-                AppTextStyles.bodyMedium.copyWith(fontStyle: FontStyle.italic),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Shell Components ─────────────────────────────────────────
-
-  PreferredSizeWidget _buildAppBar(double opacity) {
+  Widget _buildAppBar(double opacity) {
     const h = kToolbarHeight + 40;
     return PreferredSize(
       preferredSize: const Size.fromHeight(h),
@@ -546,154 +300,258 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
         alignment: Alignment.bottomCenter,
         child: Text('LYTH',
-            style: GoogleFonts.montserrat(
-                letterSpacing: 6,
-                fontWeight: FontWeight.w300,
-                fontSize: 16,
-                color: AppColors.textPrimary)),
+            style: GoogleFonts.philosopher(
+                letterSpacing: 12,
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                color: AppColors.goldDeep)),
       ),
+    );
+  }
+
+  Widget _buildDateSelector() {
+    final now = DateTime.now();
+    final List<DateTime> displayDates =
+        List.generate(5, (i) => now.add(Duration(days: i - 1)));
+    final weekDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(_selectedDate.day == now.day ? 'HÔM NAY' : 'DỰ BÁO',
+            style: GoogleFonts.montserrat(
+                color: AppColors.goldDeep,
+                letterSpacing: 2.0,
+                fontSize: 9,
+                fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        Row(
+          children: displayDates.map((d) {
+            final isSelected = d.day == _selectedDate.day;
+            return GestureDetector(
+              onTap: () {
+                if (!isSelected) {
+                  setState(() {
+                    _selectedDate = d;
+                    _cachedProfile = null;
+                  });
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      weekDays[d.weekday % 7],
+                      style: GoogleFonts.montserrat(
+                        fontSize: 8,
+                        color: isSelected
+                            ? AppColors.textPrimary
+                            : AppColors.textMuted,
+                        letterSpacing: 0.5,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${d.day}',
+                        style: GoogleFonts.lora(
+                            fontSize: 16,
+                            color: isSelected
+                                ? AppColors.textPrimary
+                                : AppColors.textMuted,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w400)),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
   Widget _buildAvatar(UserModel? user) {
     return Container(
-      padding: const EdgeInsets.all(3),
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border:
-              Border.all(color: AppColors.goldAccent.withValues(alpha: 0.3))),
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: user?.photoUrl != null
-                ? DecorationImage(
-                    image: NetworkImage(user!.photoUrl!), fit: BoxFit.cover)
-                : null),
-        child: user?.photoUrl == null
-            ? const Icon(Icons.person_outline,
-                size: 20, color: AppColors.earthTaupe)
+        shape: BoxShape.circle,
+        image: user?.photoUrl != null
+            ? DecorationImage(
+                image: NetworkImage(user!.photoUrl!), fit: BoxFit.cover)
             : null,
+        border: Border.all(color: AppColors.goldAccent.withValues(alpha: 0.3)),
       ),
+      child: user?.photoUrl == null
+          ? const Icon(Icons.person_outline,
+              color: AppColors.goldAccent, size: 20)
+          : null,
     );
-  }
-
-  Widget _buildShimmerContent() {
-    return Shimmer.fromColors(
-        baseColor: Colors.grey[200]!,
-        highlightColor: Colors.white,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(width: 100, height: 10, color: Colors.white),
-          const SizedBox(height: 16),
-          Container(width: 250, height: 32, color: Colors.white),
-          const SizedBox(height: 32),
-          Container(width: double.infinity, height: 80, color: Colors.white)
-        ]));
-  }
-
-  Widget _buildShimmerList() {
-    return Shimmer.fromColors(
-        baseColor: Colors.grey[200]!,
-        highlightColor: Colors.white,
-        child: Column(
-            children: List.generate(
-                3,
-                (i) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Container(
-                        width: double.infinity,
-                        height: 14,
-                        color: Colors.white)))));
   }
 
   Widget _buildBottomNav() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
           color: AppColors.background,
           border: Border(
               top: BorderSide(
                   color: AppColors.divider.withValues(alpha: 0.5),
                   width: 0.5))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.auto_awesome_mosaic_outlined, 'Home', true),
-          _buildNavItem(Icons.explore_outlined, 'Sky', false),
-          _buildNavItem(Icons.favorite_border_rounded, 'Love', false),
-          _buildNavItem(Icons.person_outline_rounded, 'Me', false),
-        ],
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            _buildNavItem(Icons.auto_awesome_mosaic_outlined, 'Trang chủ', 0),
+            _buildNavItem(Icons.explore_outlined, 'Vũ trụ', 1),
+            _buildNavItem(Icons.favorite_border_rounded, 'Yêu Thích', 2),
+            _buildNavItem(Icons.person_outline_rounded, 'Cá nhân', 3),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool active) =>
-      Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon,
-            color: active ? AppColors.goldDeep : AppColors.textMuted, size: 22),
-        const SizedBox(height: 6),
-        Text(label,
-            style: TextStyle(
-                color: active ? AppColors.textPrimary : AppColors.textMuted,
-                fontSize: 9,
-                fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                letterSpacing: 0.5))
-      ]);
-
-  void _showAskAstrologer(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => Container(
-            height: 450,
-            decoration: const BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(40))),
-            padding: const EdgeInsets.all(40),
-            child: Column(children: [
-              Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: AppColors.divider,
-                      borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 40),
-              Text('HỎI LYTH',
-                  style: GoogleFonts.montserrat(
-                      letterSpacing: 4, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 20),
-              Text('Lời nhắn từ vũ trụ hôm nay khiến bạn tò mò điều gì?',
-                  textAlign: TextAlign.center, style: AppTextStyles.bodyLarge)
-            ])));
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    final active = _currentIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (_currentIndex != index) {
+            setState(() {
+              _currentIndex = index;
+              _scrollOffset = 0; // Reset offset hien thi
+            });
+            // Cuon ve đầu trang cho tab mới
+            if (_scrollController.hasClients) {
+              _scrollController.jumpTo(0);
+            }
+          }
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon,
+                  color: active ? AppColors.goldDeep : AppColors.textMuted,
+                  size: 24),
+              const SizedBox(height: 6),
+              Text(label,
+                  style: GoogleFonts.philosopher(
+                      color: active ? AppColors.goldDeep : AppColors.textMuted,
+                      fontSize: 10,
+                      letterSpacing: 0.5,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w400)),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class AuraPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          AppColors.sageMoss.withValues(alpha: 0.1),
-          Colors.transparent,
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawCircle(
-        Offset(size.width * 0.2, size.height * 0.1), size.width * 0.4, paint);
+    // 1. Lớp Aura nền (Gradients) - Giữ làm nhòe để tạo chiều sâu
+    final auraPaint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 80);
 
-    final paint2 = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          AppColors.goldAccent.withValues(alpha: 0.08),
-          Colors.transparent,
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawCircle(
-        Offset(size.width * 0.8, size.height * 0.5), size.width * 0.6, paint2);
+      Offset(size.width * 0.8, size.height * 0.1),
+      size.width * 0.4,
+      auraPaint..color = AppColors.goldDeep.withValues(alpha: 0.12),
+    );
+
+    canvas.drawCircle(
+      Offset(size.width * 0.2, size.height * 0.7),
+      size.width * 0.5,
+      auraPaint..color = AppColors.sageMoss.withValues(alpha: 0.1),
+    );
+
+    // 2. Chi tiết chiêm tinh (Astrology Details) - Nét mảnh và SẮC NÉT
+    final linePaint = Paint()
+      ..color = AppColors.goldDeep.withValues(alpha: 0.25)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.4; // Nét cực mảnh nhưng không nhòe
+
+    final center = Offset(size.width * 0.5, size.height * 0.4);
+
+    // Vòng tròn lớn bao quanh
+    canvas.drawCircle(center, size.width * 0.8, linePaint);
+    canvas.drawCircle(center, size.width * 0.78,
+        linePaint..color = AppColors.goldDeep.withValues(alpha: 0.1));
+
+    // Các đường gạch như la bàn thiên văn
+    for (var i = 0; i < 24; i++) {
+      final angle = (i * 15) * (3.14159 / 180);
+      final isMainAxis = i % 6 == 0;
+      final lengthMultiplier = isMainAxis ? 0.85 : 0.82;
+
+      final start = Offset(
+        center.dx + (size.width * 0.75) * cos(angle),
+        center.dy + (size.width * 0.75) * sin(angle),
+      );
+      final end = Offset(
+        center.dx + (size.width * lengthMultiplier) * cos(angle),
+        center.dy + (size.width * lengthMultiplier) * sin(angle),
+      );
+      canvas.drawLine(
+          start,
+          end,
+          linePaint
+            ..color =
+                AppColors.goldDeep.withValues(alpha: isMainAxis ? 0.2 : 0.1));
+    }
+
+    // 3. Những vì sao (Crisp Stars)
+    final starPaint = Paint()
+      ..color = AppColors.goldDeep.withValues(alpha: 0.4);
+    final stars = [
+      Offset(size.width * 0.1, size.height * 0.15),
+      Offset(size.width * 0.9, size.height * 0.3),
+      Offset(size.width * 0.2, size.height * 0.8),
+      Offset(size.width * 0.8, size.height * 0.9),
+      Offset(size.width * 0.5, size.height * 0.05),
+    ];
+
+    for (var star in stars) {
+      canvas.drawCircle(star, 1.5, starPaint);
+    }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class MysticBackground extends StatelessWidget {
+  const MysticBackground({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Hình nền AI tạo
+        Positioned.fill(
+          child: Opacity(
+            opacity: 0.3, // Rất mờ để tinh tế
+            child: Image.asset(
+              'assets/images/mystic_bg.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // Lớp phủ màu mờ ảo nhẹ nhàng từ AuraPainter (giữ lại các vì sao và vòng tròn mờ)
+        Positioned.fill(
+          child: CustomPaint(
+            painter: AuraPainter(),
+          ),
+        ),
+      ],
+    );
+  }
 }

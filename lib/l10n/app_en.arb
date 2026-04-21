@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Lyth Astrology",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "welcomeMessage": "Welcome to Lyth Astrology",
+  "@welcomeMessage": {
+    "description": "A welcome message shown on the home screen"
+  }
+}

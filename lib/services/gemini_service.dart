@@ -41,21 +41,22 @@ class GeminiService {
     }).join('\n');
 
     final prompt = """
-      Hãy đóng vai Lyth - một tri kỷ chiêm tinh dịu dàng. Hãy viết một lời nhắn súc tích cho người bạn có Sun Sign là ${userSunSign.name.toUpperCase()}.
+      Hãy đóng vai Lyth - một tri kỷ chiêm tinh dịu dàng, sâu sắc và đầy thấu cảm. 
+      Nhiệm vụ của bạn là viết một lời nhắn hàng ngày cho người bạn có Sun Sign là ${userSunSign.name.toUpperCase()}.
+      
+      Yêu cầu về văn phong:
+      - Header: KHÔNG phải là một tiêu đề trừu tượng. Hãy viết một câu nhắn nhủ tình cảm, bắt đầu bằng các danh xưng như "Em bé à", "Em ơi", "Bé iu ơi", "Baby à". Nội dung header phải bao hàm một thông điệp hoặc hành động cụ thể cho ngày hôm nay (Vd: "Em ơi, hôm nay hãy cứ yếu mềm một chút để thấy lòng nhẹ nhàng hơn nhé."). Giới hạn dưới 15 từ.
+      - Body: 2-3 câu ngắn gọn nhưng mang tính "chữa lành", giải mã bối cảnh hành tinh hôm nay tác động thế nào đến tinh thần họ.
+      - Dos/Donts: Mỗi mục 3 ý cực ngắn, thực tế.
 
-      Yêu cầu:
-      - Header: Dưới 7 từ, như thông báo điện thoại.
-      - Body: 2 câu ngắn, sâu sắc, vỗ về.
-      - Dos/Donts: Mỗi mục 3 ý cực ngắn.
-
-      Dữ liệu hành tinh hôm nay:
+      Dữ liệu hành tinh hiện tại (dùng để luận giải):
       $planetContext
 
       CHỈ TRẢ VỀ DỮ LIỆU ĐỊNH DẠNG JSON THEO MẪU NÀY:
       {
-        "header": "Dòng tiêu đề súc tích",
-        "category": "CAREER/LOVE/SELF",
-        "body": "Nội dung tâm tình ngắn.",
+        "header": "Câu nhắn nhủ tình cảm và cụ thể",
+        "category": "IDENTITY/LOVE/ENERGY/MINDSET",
+        "body": "Nội dung tâm tình sâu sắc.",
         "dos": ["Việc nên 1", "Việc nên 2", "Việc nên 3"],
         "donts": ["Việc tránh 1", "Việc tránh 2", "Việc tránh 3"]
       }

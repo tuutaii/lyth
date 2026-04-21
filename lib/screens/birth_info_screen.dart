@@ -6,7 +6,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/astrology_api_models.dart';
 import '../models/user_model.dart';
 import '../services/astrology_api_service.dart';
 import '../services/auth_service.dart';
@@ -58,7 +57,7 @@ class _BirthInfoScreenState extends State<BirthInfoScreen>
     _hourCtrl.text = '08';
     _minuteCtrl.text = '30';
     _cityCtrl.text = 'Lai Vung';
-    
+
     _resolvedLocation = const GeoLocation(
       latitude: 10.28701,
       longitude: 105.6617,
@@ -92,31 +91,25 @@ class _BirthInfoScreenState extends State<BirthInfoScreen>
     });
 
     try {
-      Map<String, dynamic>? rawLoc;
-      try {
-        rawLoc = await AstrologyApiService().getGeoLocation(originalCity);
-      } catch (_) {
-        // 2. Nếu thất bại, thử lấy phần cuối (thường là tỉnh/thành)
+      GeoLocation? foundLocation =
+          await AstrologyApiService().getGeoLocation(originalCity);
+
+      // Nếu không tìm thấy bằng tên đầy đủ, thử tìm bằng từ khóa cuối (thường là tỉnh/thành)
+      if (foundLocation == null) {
         final parts = originalCity.split(RegExp(r'[, ]+'));
         if (parts.length > 1) {
           final fallbackCity = parts.last;
           debugPrint('Thử tìm kiếm fallback với: $fallbackCity');
-          rawLoc = await AstrologyApiService().getGeoLocation(fallbackCity);
+          foundLocation =
+              await AstrologyApiService().getGeoLocation(fallbackCity);
         }
       }
 
-      if (rawLoc != null) {
-        final location = GeoLocation(
-          latitude: rawLoc['latitude'],
-          longitude: rawLoc['longitude'],
-          timezone: rawLoc['timezone'],
-          cityName: rawLoc['display_name'],
-        );
-        final foundLocation = location;
+      if (foundLocation != null) {
         setState(() {
           _resolvedLocation = foundLocation;
           _locationStatus =
-              '📍 ${foundLocation.latitude.toStringAsFixed(4)}, ${foundLocation.longitude.toStringAsFixed(4)} · GMT+${foundLocation.timezone.toStringAsFixed(0)}';
+              '📍 ${foundLocation?.latitude.toStringAsFixed(4)}, ${foundLocation?.longitude.toStringAsFixed(4)} · GMT+${foundLocation?.timezone.toStringAsFixed(0)}';
         });
       } else {
         throw Exception('Location not found');
@@ -130,7 +123,8 @@ class _BirthInfoScreenState extends State<BirthInfoScreen>
           timezone: 7.0,
           cityName: 'Hanoi',
         );
-        _locationStatus = '📍 Không tìm thấy: Dùng tạm Hà Nội. Bạn có thể thử nhập tên Tỉnh (vd: Dong Thap)';
+        _locationStatus =
+            '📍 Không tìm thấy: Dùng tạm Hà Nội. Bạn có thể thử nhập tên Tỉnh (vd: Dong Thap)';
       });
     }
   }
@@ -474,7 +468,9 @@ class _BirthInfoScreenState extends State<BirthInfoScreen>
               ),
             ),
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Vui lòng nhập nơi sinh';
+              if (v == null || v.trim().isEmpty) {
+                return 'Vui lòng nhập nơi sinh';
+              }
               return null;
             },
             onFieldSubmitted: (_) => _resolveCity(),
@@ -509,9 +505,7 @@ class _BirthInfoScreenState extends State<BirthInfoScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isError
-            ? const Color(0xFFFFF8F0)
-            : const Color(0xFFF0F7EE),
+        color: isError ? const Color(0xFFFFF8F0) : const Color(0xFFF0F7EE),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

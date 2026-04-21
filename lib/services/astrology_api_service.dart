@@ -7,6 +7,20 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+class GeoLocation {
+  final double latitude;
+  final double longitude;
+  final double timezone;
+  final String cityName;
+
+  const GeoLocation({
+    required this.latitude,
+    required this.longitude,
+    required this.timezone,
+    required this.cityName,
+  });
+}
+
 class AstrologyApiService {
   static final AstrologyApiService _instance = AstrologyApiService._internal();
   factory AstrologyApiService() => _instance;
@@ -14,11 +28,6 @@ class AstrologyApiService {
 
   static const String _jplUrl = "https://ssd.jpl.nasa.gov/api/horizons.api";
 
-  /* 
-  --- TẠM KHÓA API CŨ ---
-  static const String _baseUrl = "https://json.freeastrologyapi.com";
-  ... 
-  */
 
   /// Lấy dữ liệu kinh độ hoàng đạo (Ecliptic Longitude) từ NASA JPL Horizons.
   /// Trả về giá trị từ 0.0 đến 360.0 độ.
@@ -49,7 +58,7 @@ class AstrologyApiService {
         "QUANTITIES='31'"); // 31 = Observer-centered ecliptic lon. & lat.
 
     try {
-      debugPrint('🚀 NASA Request: $planetId for $dateStr');
+      // debugPrint('🚀 NASA Request: $planetId for $dateStr');
       final response = await http.get(uri);
       
       if (response.statusCode == 200) {
@@ -78,7 +87,7 @@ class AstrologyApiService {
   }
 
   /// Tìm tọa độ từ tên thành phố sử dụng Nominatim (OpenStreetMap) - MIỄN PHÍ.
-  Future<Map<String, dynamic>?> getGeoLocation(String city) async {
+  Future<GeoLocation?> getGeoLocation(String city) async {
     final query = Uri.encodeComponent(city);
     final url = Uri.parse("https://nominatim.openstreetmap.org/search?q=$query&format=json&limit=1");
 
@@ -91,12 +100,12 @@ class AstrologyApiService {
         final List data = jsonDecode(response.body);
         if (data.isNotEmpty) {
           final first = data[0];
-          return {
-            "latitude": double.parse(first['lat']),
-            "longitude": double.parse(first['lon']),
-            "display_name": first['display_name'],
-            "timezone": 7.0, // Mặc định cho VN, có thể tối ưu thêm sau
-          };
+          return GeoLocation(
+            latitude: double.parse(first['lat']),
+            longitude: double.parse(first['lon']),
+            cityName: first['display_name'],
+            timezone: 7.0, // Mặc định cho VN
+          );
         }
       }
     } catch (e) {

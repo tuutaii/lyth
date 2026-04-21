@@ -96,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F4EF),
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           // Nền trang trí
@@ -107,26 +108,27 @@ class _LoginScreenState extends State<LoginScreen>
               opacity: _fadeAnim,
               child: SlideTransition(
                 position: _slideAnim,
-                child: Padding(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 32),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Spacer(flex: 3),
+                        SizedBox(height: size.height * 0.15),
                         _buildGreeting(),
-                        const Spacer(flex: 2),
+                        SizedBox(height: size.height * 0.08),
                         _buildPasswordField(),
                         if (_errorMessage != null) ...[
                           const SizedBox(height: 12),
                           _buildErrorMessage(),
                         ],
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         _buildLoginButton(),
-                        const Spacer(flex: 4),
+                        SizedBox(height: size.height * 0.15),
                         _buildFooter(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
@@ -175,17 +177,20 @@ class _LoginScreenState extends State<LoginScreen>
           const Positioned(
             top: 80,
             left: 40,
-            child: Text('✦', style: TextStyle(fontSize: 12, color: Color(0xFF9E8E7E))),
+            child: Text('✦',
+                style: TextStyle(fontSize: 12, color: Color(0xFF9E8E7E))),
           ),
           const Positioned(
             top: 140,
             right: 60,
-            child: Text('✦', style: TextStyle(fontSize: 8, color: Color(0xFFB5A886))),
+            child: Text('✦',
+                style: TextStyle(fontSize: 8, color: Color(0xFFB5A886))),
           ),
           const Positioned(
             bottom: 200,
             right: 40,
-            child: Text('✦', style: TextStyle(fontSize: 10, color: Color(0xFF9E8E7E))),
+            child: Text('✦',
+                style: TextStyle(fontSize: 10, color: Color(0xFF9E8E7E))),
           ),
         ],
       ),
@@ -228,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen>
 
         // Lời chào
         Text(
-          'Chào Ngọc Lý 🌙',
+          'Chào Em bé 🌙',
           style: GoogleFonts.lora(
             fontSize: 30,
             fontWeight: FontWeight.w700,
@@ -240,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen>
         const SizedBox(height: 12),
 
         Text(
-          'Hãy nhập mật khẩu để\nkhám phá lá số hôm nay.',
+          'Nhập mật khẩu để\nnhận yêu thương nha.',
           style: GoogleFonts.montserrat(
             fontSize: 15,
             color: const Color(0xFF7A6E63),
@@ -321,8 +326,7 @@ class _LoginScreenState extends State<LoginScreen>
               size: 20,
             ),
             suffixIcon: GestureDetector(
-              onTap: () =>
-                  setState(() => _obscurePassword = !_obscurePassword),
+              onTap: () => setState(() => _obscurePassword = !_obscurePassword),
               child: Icon(
                 _obscurePassword
                     ? Icons.visibility_off_outlined
@@ -353,8 +357,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE57373), width: 2),
+              borderSide: const BorderSide(color: Color(0xFFE57373), width: 2),
             ),
           ),
           validator: (v) {
@@ -380,8 +383,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline,
-              color: Color(0xFFE57373), size: 16),
+          const Icon(Icons.error_outline, color: Color(0xFFE57373), size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -408,7 +410,8 @@ class _LoginScreenState extends State<LoginScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF5C5240),
           foregroundColor: const Color(0xFFF8F4EF),
-          disabledBackgroundColor: const Color(0xFF5C5240).withValues(alpha: 0.6),
+          disabledBackgroundColor:
+              const Color(0xFF5C5240).withValues(alpha: 0.6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -463,13 +466,27 @@ class _LoginScreenState extends State<LoginScreen>
   String _todayLabel() {
     final now = DateTime.now();
     const weekdays = [
-      'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm',
-      'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'
+      'Thứ Hai',
+      'Thứ Ba',
+      'Thứ Tư',
+      'Thứ Năm',
+      'Thứ Sáu',
+      'Thứ Bảy',
+      'Chủ Nhật'
     ];
     const months = [
-      'tháng 1', 'tháng 2', 'tháng 3', 'tháng 4',
-      'tháng 5', 'tháng 6', 'tháng 7', 'tháng 8',
-      'tháng 9', 'tháng 10', 'tháng 11', 'tháng 12'
+      'tháng 1',
+      'tháng 2',
+      'tháng 3',
+      'tháng 4',
+      'tháng 5',
+      'tháng 6',
+      'tháng 7',
+      'tháng 8',
+      'tháng 9',
+      'tháng 10',
+      'tháng 11',
+      'tháng 12'
     ];
     final wd = weekdays[now.weekday - 1];
     final m = months[now.month - 1];

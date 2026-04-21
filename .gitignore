@@ -90,3 +90,14 @@ output.json
 # Firebase related (Secrets)
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
+*firebase-adminsdk*.json
+serviceAccountKey.json
+
+# Scripts and private keys
+scripts/.env
+scripts/*.json
+scripts/logs/
+**/__pycache__/
+**/venv/
+.env
+.env.*
