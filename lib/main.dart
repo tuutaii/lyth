@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:lyth_astrology/l10n/app_localizations.dart';
-import 'theme/app_theme.dart';
-import 'services/auth_service.dart';
-import 'services/notification_service.dart';
+import 'package:lyth_astrology/core/theme/app_theme.dart';
+import 'package:lyth_astrology/data/services/auth_service.dart';
+import 'package:lyth_astrology/data/services/notification_service.dart';
 
-import 'screens/splash_screen.dart';
+import 'package:lyth_astrology/presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
