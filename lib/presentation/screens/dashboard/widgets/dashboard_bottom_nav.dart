@@ -26,8 +26,8 @@ class DashboardBottomNav extends StatelessWidget {
         child: Row(
           children: [
             _buildNavItem(Icons.auto_awesome_mosaic_outlined, 'Trang chủ', 0),
-            _buildNavItem(Icons.explore_outlined, 'Vũ trụ', 1),
-            _buildNavItem(Icons.favorite_border_rounded, 'Yêu Thích', 2),
+            _buildNavItem(Icons.bubble_chart_outlined, 'Hành Tinh', 1),
+            _buildNavItem(Icons.stream_rounded, 'Linh Hồn', 2),
             _buildNavItem(Icons.person_outline_rounded, 'Cá nhân', 3),
           ],
         ),

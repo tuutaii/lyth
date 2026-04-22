@@ -5,7 +5,6 @@ import 'package:lyth_astrology/core/theme/app_theme.dart';
 import 'package:lyth_astrology/data/models/astro_models.dart';
 import 'package:lyth_astrology/data/models/user_model.dart';
 import 'package:lyth_astrology/data/services/auth_service.dart';
-import 'package:lyth_astrology/data/services/notification_service.dart';
 
 class ProfileTab extends StatelessWidget {
   final UserModel? user;
@@ -21,70 +20,71 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double screenWidth = size.width;
+    // Tỉ lệ scale font dựa trên màn hình tiêu chuẩn (375px)
+    final double fontScale = (screenWidth / 375).clamp(0.85, 1.1);
+
     return SingleChildScrollView(
       controller: scrollController,
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(0, 100, 0, 100),
+      padding: const EdgeInsets.fromLTRB(0, 100, 0, 29),
       child: Column(
         children: [
-          // 1. Dấu ấn cốt lõi (The Core)
-          _buildSectionTitle(AppStrings.coreTitle, AppStrings.coreSubtitle),
-          const SizedBox(height: 24),
-          _buildCoreSignSection(profile),
-
-          const SizedBox(height: 64),
-
-          // 2. La bàn nội tâm (Psychological Insight)
-          _buildSectionTitle(
-              AppStrings.compassTitle, AppStrings.compassSubtitle),
-          const SizedBox(height: 24),
-          _buildInnerCompassSection(),
-
-          const SizedBox(height: 64),
-
-          // 3. Tọa độ bản mệnh (Technical Data)
-          _buildTechnicalDataSection(
-            user,
-            () async {
-              await NotificationService().testNotification();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(AppStrings.notifScheduledMsg),
-                    backgroundColor: Color(0xFF5C5240),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
+          // Birth time reminder at the top
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Text(
+              '✦ Hãy cung cấp giờ sinh chính xác để Tài cho em thêm thông tin nha!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cormorantGaramond(
+                fontSize: 16 * fontScale,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w600,
+                color: AppColors.goldDeep.withValues(alpha: 0.8),
+              ),
+            ),
           ),
+          const SizedBox(height: 32),
+
+          // 1. Chỉ số định mệnh (Numerology - Số 8)
+          _buildSectionTitle("CHỈ SỐ ĐỊNH MỆNH", "NUMEROLOGY", fontScale),
+          const SizedBox(height: 24),
+          _buildNumerologySection(fontScale),
+
+          const SizedBox(height: 48),
+
+          // 2. Tọa độ bản mệnh (Technical Data)
+          _buildSectionTitle("TỌA ĐỘ BẢN MỆNH", "TECHNICAL DATA", fontScale),
+          const SizedBox(height: 24),
+          _buildTechnicalDataSection(user, fontScale),
+
+          const SizedBox(height: 34),
+
+          // 3. Lời đề tặng (Dedication)
+          _buildHeartfeltFooter(fontScale),
 
           // 4. Đăng xuất (Logout)
-          const SizedBox(height: 40),
-          _buildLogoutButton(context),
-
-          const SizedBox(height: 64),
-
-          // 5. Lời đề tặng (Dedication)
-          _buildHeartfeltFooter(),
+          const SizedBox(height: 10),
+          _buildLogoutButton(context, fontScale),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title, String subtitle) {
+  Widget _buildSectionTitle(String title, String subtitle, double scale) {
     return Column(
       children: [
         Text(subtitle,
             style: GoogleFonts.philosopher(
-                fontSize: 10,
+                fontSize: 10 * scale,
                 letterSpacing: 6,
                 color: AppColors.goldDeep,
                 fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text(title,
             style: GoogleFonts.philosopher(
-                fontSize: 24,
+                fontSize: 24 * scale,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 2,
                 color: AppColors.textPrimary)),
@@ -94,143 +94,48 @@ class ProfileTab extends StatelessWidget {
     );
   }
 
-  Widget _buildCoreSignSection(UserAstroProfile profile) {
-    return Column(
-      children: [
-        _buildCoreCard(
-            AppStrings.signSun,
-            'KIM NGƯU',
-            'TAURUS',
-            '☀️',
-            '"Sự kiên định là sức mạnh, nhưng cũng là cái lồng khiến bạn khó dịch chuyển. Em sinh ra để xây dựng những giá trị bền vững, không phải để loay hoay trong nỗi sợ thay đổi."',
-            AppColors.fireLight),
-        _buildCoreCard(
-            AppStrings.signMoon,
-            'BỌ CẠP',
-            'SCORPIO',
-            '🌙',
-            '"Bề ngoài là sự bình tĩnh của Kim Ngưu, nhưng bên trong em là những cơn sóng ngầm dữ dội của Bọ Cạp. Em không cần sự công nhận từ bên ngoài, em cần sự thấu hiểu từ sâu thẳm."',
-            AppColors.waterLight),
-        _buildCoreCard(
-            AppStrings.signRising,
-            'CỰ GIẢI',
-            'CANCER',
-            '🌅',
-            '"Cách thế giới nhìn em là sự dịu dàng và che chở, nhưng em chỉ mở lòng với những ai thực sự kiên trì."',
-            AppColors.airLight),
-      ],
-    );
-  }
-
-  Widget _buildCoreCard(String label, String sign, String engSign, String emoji,
-      String text, Color accent) {
+  Widget _buildNumerologySection(double scale) {
     return Container(
-      margin:
-          const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 12),
-      padding: const EdgeInsets.all(28),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: EdgeInsets.all(32 * scale),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: accent.withValues(alpha: 0.15)),
+        color: AppColors.pureWhite,
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+        boxShadow: AppShadows.cardSoft,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 32)),
-              const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
-                      style: GoogleFonts.montserrat(
-                          fontSize: 9,
-                          letterSpacing: 4,
-                          fontWeight: FontWeight.bold,
-                          color: accent)),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(sign,
-                          style: GoogleFonts.philosopher(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary)),
-                      Text(' / $engSign',
-                          style: GoogleFonts.philosopher(
-                              fontSize: 14, color: AppColors.textMuted)),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Text(text,
-              style: GoogleFonts.cormorantGaramond(
-                  fontSize: 20,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
-                  fontStyle: FontStyle.italic,
-                  color: AppColors.textPrimary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInnerCompassSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Column(
-        children: [
-          _buildInsightItem(AppStrings.energyTitle,
-              'Bạn đang ở trong một hành trình học cách buông bỏ những thứ vốn đã mục nát.'),
-          _buildInsightItem(AppStrings.weaknessTitle,
-              'Bướng bỉnh là kẻ thù lớn nhất của lòng kiên trì. Đừng nhầm lẫn giữa việc giữ vững mục tiêu và việc cố chấp với quá khứ.'),
-          _buildInsightItem(AppStrings.missionTitle,
-              'Tìm kiếm sự an toàn từ chính mình, thay vì xây dựng nó từ những mảnh ghép vay mượn.'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInsightItem(String category, String content) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-      decoration: BoxDecoration(
-        border: Border(
-            left: BorderSide(
-                color: AppColors.goldDeep.withValues(alpha: 0.4), width: 3)),
-        color: AppColors.surfaceSubtle.withValues(alpha: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(category,
+          Text('8',
               style: GoogleFonts.philosopher(
-                  fontSize: 15,
-                  letterSpacing: 2,
+                  fontSize: 80 * scale,
                   fontWeight: FontWeight.bold,
                   color: AppColors.goldDeep)),
-          const SizedBox(height: 12),
-          Text(content,
-              style: GoogleFonts.cormorantGaramond(
-                  fontSize: 18,
-                  height: 1.4,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary)),
+          Text('CON SỐ CHỦ ĐẠO',
+              style: GoogleFonts.montserrat(
+                  fontSize: 12 * scale,
+                  letterSpacing: 4,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.goldDeep.withValues(alpha: 0.7))),
+          const SizedBox(height: 24),
+          Text(
+            'Con số của sự cân bằng và khả năng hiện thực hóa mọi ước mơ. Sự kết hợp giữa năng lượng Kim Ngưu vững chãi và con số 8 đầy quyền năng giúp em làm chủ được vận mệnh, tạo nên những giá trị bền vững từ chính bản lĩnh và nội lực phi thường của mình.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cormorantGaramond(
+                fontSize: 18 * scale,
+                height: 1.5,
+                color: AppColors.textPrimary,
+                fontStyle: FontStyle.italic),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTechnicalDataSection(UserModel? user, VoidCallback ontab) {
+  Widget _buildTechnicalDataSection(UserModel? user, double scale) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(40 * scale),
       decoration: BoxDecoration(
         color: AppColors.surfaceSubtle,
         border: Border(
@@ -239,43 +144,24 @@ class ProfileTab extends StatelessWidget {
       child: Column(
         children: [
           _buildTechnicalRow(AppStrings.technicalTitle,
-              '10.28° N, 105.65° E (Lai Vung, Đồng Tháp)'),
-          _buildTechnicalRow('Hệ thống nhà', 'Placidus'),
-          _buildTechnicalRow('Ngày sinh gốc', '10/05/2000 | 08:00 AM (GMT+7)'),
+              '10.28° N, 105.65° E (Lai Vung, Đồng Tháp)', scale),
+          _buildTechnicalRow('Hệ thống nhà', 'Placidus', scale),
+          _buildTechnicalRow(
+              'Ngày sinh gốc', '10/05/2000 | 08:00 AM (GMT+7)', scale),
           const SizedBox(height: 15),
           Text(AppStrings.technicalInfo,
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
-                  fontSize: 10,
+                  fontSize: 10 * scale,
                   height: 1.6,
                   fontStyle: FontStyle.italic,
                   color: AppColors.textMuted)),
-          const SizedBox(height: 24),
-          // Nút Test Notification (Tạm thời để cậu kiểm tra)
-          TextButton.icon(
-            onPressed: ontab,
-            icon: const Icon(Icons.notification_add_outlined, size: 14),
-            label: Text(
-              AppStrings.btnTestNotif,
-              style: GoogleFonts.barlowCondensed(
-                  fontSize: 11, fontWeight: FontWeight.w700),
-            ),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.goldDeep,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                    color: AppColors.goldDeep.withValues(alpha: 0.3)),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildTechnicalRow(String label, String value) {
+  Widget _buildTechnicalRow(String label, String value, double scale) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -283,20 +169,23 @@ class ProfileTab extends StatelessWidget {
         children: [
           Text(label,
               style: GoogleFonts.barlowCondensed(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary.withValues(alpha: 0.7))),
-          Text(value,
-              style: GoogleFonts.barlowCondensed(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
+          Flexible(
+            child: Text(value,
+                textAlign: TextAlign.right,
+                style: GoogleFonts.barlowCondensed(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary)),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, double scale) {
     return Center(
       child: OutlinedButton.icon(
         onPressed: () async {
@@ -323,8 +212,7 @@ class ProfileTab extends StatelessWidget {
                   onPressed: () => Navigator.pop(context, true),
                   child: Text('Đăng xuất',
                       style: GoogleFonts.montserrat(
-                          color: Colors.redAccent,
-                          fontWeight: FontWeight.w700)),
+                          color: AppColors.error, fontWeight: FontWeight.w700)),
                 ),
               ],
             ),
@@ -334,16 +222,20 @@ class ProfileTab extends StatelessWidget {
             await AuthService().signOut();
           }
         },
-        icon: const Icon(Icons.logout_rounded, size: 16),
+        icon: Icon(Icons.logout_rounded, size: 16 * scale),
         label: Text(
           AppStrings.btnLogout,
           style: GoogleFonts.philosopher(
-              fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2),
         ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
+          backgroundColor: AppColors.error,
+          foregroundColor: AppColors.pureWhite,
           side: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: EdgeInsets.symmetric(
+              horizontal: 32 * scale, vertical: 16 * scale),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         ),
@@ -351,19 +243,19 @@ class ProfileTab extends StatelessWidget {
     );
   }
 
-  Widget _buildHeartfeltFooter() {
+  Widget _buildHeartfeltFooter(double scale) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 10),
       child: Column(
         children: [
-          const Icon(Icons.favorite_rounded,
-              size: 14, color: AppColors.goldDeep),
-          const SizedBox(height: 20),
+          Icon(Icons.favorite_rounded,
+              size: 14 * scale, color: AppColors.goldDeep),
+          const SizedBox(height: 10),
           Text(
             AppStrings.heartfeltFooter,
             textAlign: TextAlign.center,
             style: GoogleFonts.philosopher(
-                fontSize: 12,
+                fontSize: 12 * scale,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1,
                 height: 2.0,

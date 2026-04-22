@@ -36,7 +36,7 @@ class HomeTab extends StatelessWidget {
         await bloc.stream.firstWhere((state) => state is! DashboardLoading);
       },
       color: AppColors.goldDeep,
-      backgroundColor: Colors.white.withValues(alpha: 0.9),
+      backgroundColor: AppColors.pureWhite.withValues(alpha: 0.9),
       displacement:
           160, // Hiển thị phía dưới AppBar và DateSelector (tổng cộng ~140px)
       child: CustomScrollView(
@@ -118,7 +118,7 @@ class HomeTab extends StatelessWidget {
               ),
               child: Text(profile.dailyInsightCategory.toUpperCase(),
                   style: GoogleFonts.cormorantGaramond(
-                      color: Colors.white,
+                  color: AppColors.pureWhite,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2.5,
                       fontSize: 11)),
@@ -179,10 +179,10 @@ class HomeTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.4),
+        color: AppColors.pureWhite.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(28),
         border:
-            Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+            Border.all(color: AppColors.pureWhite.withValues(alpha: 0.6), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +264,7 @@ class HomeTab extends StatelessWidget {
               ],
             ),
             child:
-                const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                const Icon(Icons.auto_awesome, color: AppColors.pureWhite, size: 20),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -304,16 +304,16 @@ class HomeTab extends StatelessWidget {
 
   Widget _buildShimmerContent() {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: AppColors.shimmerBase,
+      highlightColor: AppColors.shimmerHighlight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 80, height: 12, color: Colors.white),
+          Container(width: 80, height: 12, color: AppColors.pureWhite),
           const SizedBox(height: 16),
-          Container(width: 250, height: 32, color: Colors.white),
+          Container(width: 250, height: 32, color: AppColors.pureWhite),
           const SizedBox(height: 24),
-          Container(width: double.infinity, height: 100, color: Colors.white),
+          Container(width: double.infinity, height: 100, color: AppColors.pureWhite),
         ],
       ),
     );

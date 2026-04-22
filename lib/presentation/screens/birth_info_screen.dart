@@ -9,12 +9,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:lyth_astrology/core/constants/app_strings.dart';
+import 'package:lyth_astrology/core/theme/app_theme.dart';
 import 'package:lyth_astrology/data/models/user_model.dart';
 import 'package:lyth_astrology/data/services/astrology_api_service.dart';
 import 'package:lyth_astrology/presentation/blocs/birth_info/birth_info_bloc.dart';
 import 'package:lyth_astrology/presentation/blocs/birth_info/birth_info_event.dart';
 import 'package:lyth_astrology/presentation/blocs/birth_info/birth_info_state.dart';
-import 'package:lyth_astrology/presentation/screens/dashboard_screen.dart';
 import 'package:lyth_astrology/data/services/auth_service.dart';
 
 class BirthInfoScreen extends StatelessWidget {
@@ -137,7 +137,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F4EF),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnim,
@@ -148,11 +148,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
               child: BlocConsumer<BirthInfoBloc, BirthInfoState>(
                 listener: (context, state) {
                   if (state is BirthInfoSubmitSuccess) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DashboardScreen()),
-                    );
+                    // AuthWrapper sẽ tự động chuyển sang Dashboard khi thấy dữ liệu birth info đã cập nhật
                   } else if (state is BirthInfoSubmitFailure) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.errorMessage)),
@@ -221,7 +217,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
           style: GoogleFonts.lora(
             fontSize: 30,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF2C2520),
+            color: AppColors.textDark,
             height: 1.3,
           ),
         ),
@@ -230,7 +226,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
           AppStrings.birthInfoSubtitle,
           style: GoogleFonts.montserrat(
             fontSize: 13.5,
-            color: const Color(0xFF7A6E63),
+            color: AppColors.textSecondary,
             height: 1.6,
           ),
         ),
@@ -244,7 +240,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
       style: GoogleFonts.montserrat(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: const Color(0xFF5C5240),
+        color: AppColors.textWarm,
         letterSpacing: 0.2,
       ),
     );
@@ -356,7 +352,7 @@ class _BirthInfoViewState extends State<_BirthInfoView>
           style: GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF7A6E63),
+            color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 6),
@@ -371,33 +367,32 @@ class _BirthInfoViewState extends State<_BirthInfoView>
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF2C2520),
+            color: AppColors.textDark,
           ),
           decoration: InputDecoration(
-            hintText: hint,
             hintStyle: GoogleFonts.montserrat(
               fontSize: 14,
-              color: const Color(0xFFBBAA9A),
+              color: AppColors.textMutedLight,
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.pureWhite,
             contentPadding: const EdgeInsets.symmetric(vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFDDD5CA)),
+              borderSide: const BorderSide(color: AppColors.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFDDD5CA)),
+              borderSide: const BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  const BorderSide(color: Color(0xFF5C5240), width: 1.5),
+                  const BorderSide(color: AppColors.textWarm, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE57373)),
+              borderSide: const BorderSide(color: AppColors.error),
             ),
             errorStyle: GoogleFonts.montserrat(fontSize: 10),
           ),
@@ -423,21 +418,21 @@ class _BirthInfoViewState extends State<_BirthInfoView>
             controller: _cityCtrl,
             style: GoogleFonts.montserrat(
               fontSize: 15,
-              color: const Color(0xFF2C2520),
+              color: AppColors.textDark,
             ),
             decoration: InputDecoration(
               hintText: AppStrings.cityHint,
               hintStyle: GoogleFonts.montserrat(
                 fontSize: 13,
-                color: const Color(0xFFBBAA9A),
+                color: AppColors.textMutedLight,
               ),
               prefixIcon: const Icon(
                 Icons.location_city_outlined,
-                color: Color(0xFF9E8E7E),
+                color: AppColors.iconMuted,
                 size: 20,
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: AppColors.pureWhite,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               border: OutlineInputBorder(
@@ -471,8 +466,8 @@ class _BirthInfoViewState extends State<_BirthInfoView>
             child: ElevatedButton(
               onPressed: () => _resolveCity(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C5240),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.textWarm,
+                foregroundColor: AppColors.pureWhite,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -529,8 +524,8 @@ class _BirthInfoViewState extends State<_BirthInfoView>
       child: ElevatedButton(
         onPressed: isLoading ? null : () => _submit(context),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5C5240),
-          foregroundColor: const Color(0xFFF8F4EF),
+          backgroundColor: AppColors.textWarm,
+          foregroundColor: AppColors.background,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -567,10 +562,9 @@ class _BirthInfoViewState extends State<_BirthInfoView>
     return Center(
       child: TextButton(
         onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          );
+          // Với app này, skip cũng nên được handle bởi state hoặc đơn giản là ko cần Navigator thủ công
+          // Tuy nhiên nếu skip mà ko update DB thì AuthWrapper sẽ vẫn giữ ở màn hình này.
+          // Tạm thời để user tự quyết định hoặc update cờ skip trong DB.
         },
         child: Text(
           AppStrings.btnSkip,

@@ -70,6 +70,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           );
         }
 
+        _lastUid = null;
         return const LoginScreen();
       },
     );

@@ -6,10 +6,11 @@ class AppStrings {
 
   /// CONFIG
   static const String splashGiftUrl = 'assets/jsons/zodiac_sign.json';
-  static const String bgUrl = "assets/images/mystic_bg.png";
+  static const String bgUrl = "assets/images/bg_1.jpg";
+  static const String splashBgUrl = "assets/images/splash_bg.png";
 
   // Login Screen
-  static const String loginGreeting = 'Chào Em bé 🌙';
+  static const String loginGreeting = 'Chào Em bé <3';
   static const String loginSubtitle = 'Nhập mật khẩu để\nnhận yêu thương nha.';
   static const String pwdLabel = 'Mật khẩu';
   static const String pwdHint = 'Nhập mật khẩu...';
@@ -90,7 +91,7 @@ class AppStrings {
   static const String btnTestNotif = 'KIỂM TRA THÔNG BÁO (5S)';
   static const String notifScheduledMsg =
       '⚡ Đã lập lịch! Thông báo sẽ hiện sau 5 giây.';
-  static const String btnLogout = 'ĐĂNG XUẤT KHỎI VŨ TRỤ';
+  static const String btnLogout = 'ĐĂNG XUẤT';
   static const String heartfeltFooter =
       'MỘT CHÚT YÊU THƯƠNG DỊU DÀNG DÀNH CHO NGỌC LÝ CỦA TÀI SUỐT NHỮNG NĂM QUA. \nCÁM ƠN VÀ MONG EM LUÔN AN YÊN.';
 

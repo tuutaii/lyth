@@ -184,9 +184,9 @@ class _DashboardViewState extends State<_DashboardView>
           contentFadeAnimation: _contentFadeController,
         );
       case 1:
-        return const SkyTab();
+        return SkyTab(scrollController: _scrollController);
       case 2:
-        return const LoveTab();
+        return LoveTab(scrollController: _scrollController);
       case 3:
         return ProfileTab(
           user: user,

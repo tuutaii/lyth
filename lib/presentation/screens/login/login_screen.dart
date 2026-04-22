@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lyth_astrology/presentation/blocs/auth/auth_bloc.dart';
 import 'package:lyth_astrology/presentation/blocs/auth/auth_event.dart';
 import 'package:lyth_astrology/presentation/blocs/auth/auth_state.dart';
-import 'package:lyth_astrology/presentation/screens/dashboard_screen.dart';
 
 import 'widgets/login_background.dart';
 import 'widgets/login_greeting.dart';
@@ -79,94 +78,80 @@ class _LoginViewState extends State<_LoginView>
 
   void _login(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
-    
-    context.read<AuthBloc>().add(
-      AuthLoginRequested(
-        email: _defaultEmail, 
-        password: _passwordController.text
-      )
-    );
+
+    context.read<AuthBloc>().add(AuthLoginRequested(
+        email: _defaultEmail, password: _passwordController.text));
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F4EF),
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          LoginBackground(size: size),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F4EF),
+        resizeToAvoidBottomInset: true,
+        body: Stack(
+          children: [
+            LoginBackground(size: size),
+            SafeArea(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: SlideTransition(
+                  position: _slideAnim,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Form(
+                      key: _formKey,
+                      child: BlocConsumer<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is AuthFailure) _passwordController.clear();
+                        },
+                        builder: (context, state) {
+                          final isLoading = state is AuthLoading;
+                          final errorMessage =
+                              state is AuthFailure ? state.errorMessage : null;
 
-          SafeArea(
-            child: FadeTransition(
-              opacity: _fadeAnim,
-              child: SlideTransition(
-                position: _slideAnim,
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Form(
-                    key: _formKey,
-                    child: BlocConsumer<AuthBloc, AuthState>(
-                      listener: (context, state) {
-                        if (state is AuthFailure) {
-                          _passwordController.clear();
-                        } else if (state is AuthSuccess) {
-                          Navigator.pushReplacement(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) => const DashboardScreen(),
-                              transitionsBuilder: (_, anim, __, child) =>
-                                  FadeTransition(opacity: anim, child: child),
-                              transitionDuration: const Duration(milliseconds: 500),
-                            ),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        final isLoading = state is AuthLoading;
-                        String? errorMessage;
-                        if (state is AuthFailure) {
-                           errorMessage = state.errorMessage;
-                        }
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: size.height * 0.15),
-                            const LoginGreeting(),
-                            SizedBox(height: size.height * 0.08),
-                            LoginPasswordField(
-                              controller: _passwordController,
-                              obscureText: _obscurePassword,
-                              isLoading: isLoading,
-                              onToggleObscure: () => setState(() => _obscurePassword = !_obscurePassword),
-                              onSubmitted: (_) => _login(context),
-                            ),
-                            if (errorMessage != null) ...[
-                              const SizedBox(height: 12),
-                              LoginErrorMessage(message: errorMessage),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: size.height * 0.15),
+                              const LoginGreeting(),
+                              SizedBox(height: size.height * 0.08),
+                              LoginPasswordField(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                isLoading: isLoading,
+                                onToggleObscure: () => setState(
+                                    () => _obscurePassword = !_obscurePassword),
+                                onSubmitted: (_) => _login(context),
+                              ),
+                              if (errorMessage != null) ...[
+                                const SizedBox(height: 12),
+                                LoginErrorMessage(message: errorMessage),
+                              ],
+                              const SizedBox(height: 32),
+                              LoginButton(
+                                isLoading: isLoading,
+                                onPressed: () => _login(context),
+                              ),
+                              SizedBox(height: size.height * 0.15),
+                              const LoginFooter(),
+                              const SizedBox(height: 32),
                             ],
-                            const SizedBox(height: 32),
-                            LoginButton(
-                              isLoading: isLoading,
-                              onPressed: () => _login(context),
-                            ),
-                            SizedBox(height: size.height * 0.15),
-                            const LoginFooter(),
-                            const SizedBox(height: 32),
-                          ],
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
