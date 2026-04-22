@@ -74,40 +74,142 @@ class NatalData {
 
   static const List<Map<String, dynamic>> soulJourney = [
     {
-      'title': 'Stellium Kim Ngưu',
-      'subtitle': 'NĂNG LƯỢNG HỘI TỤ',
-      'icon': '⛰️',
-      'content': 'Dòng chảy năng lượng hội tụ mạnh mẽ giúp em luôn vững chãi trước mọi biến động. Em trân trọng sự an yên, vẻ đẹp thực tế và luôn biết cách tạo dựng sự an toàn cho chính mình.'
-    },
-    {
-      'title': 'T-Square Đỉnh Kim Tinh',
-      'subtitle': 'THỬ THÁCH & CHUYỂN HÓA',
-      'icon': '⚡',
-      'content': 'Thử thách giúp em nhận ra giá trị tự thân sâu sắc. Chỉ khi em thực sự trân trọng và yêu thương chính mình, em mới tìm thấy sự cân bằng tuyệt vời trong mọi mối quan hệ.'
+      'title': 'Bố Cục Bập Bênh (Seesaw)',
+      'subtitle': 'SỰ CÂN BẰNG NỘI TÂM',
+      'icon': '⚖️',
+      'content': 'Dòng chảy cuộc sống đưa em qua lại giữa những thái cực đối lập, giúp em nhìn nhận mọi mặt của vấn đề với cái nhìn đa chiều và thấu cảm. Tìm về sự tĩnh lặng tại Xử Nữ chính là chìa khóa để em kiến tạo sự ổn định từ chính những điều nhỏ bé nhất.'
     },
     {
       'title': 'La Hầu Cự Giải',
       'subtitle': 'SỨ MỆNH LINH HỒN',
       'icon': '🌊',
-      'content': 'Tạm biệt những tham vọng khô khan, hành trình này dẫn lối em trở về với miền cảm xúc dịu êm. Học cách nuôi dưỡng tâm hồn và trao đi yêu thương chính là đích đến của em.'
+      'content': 'Vũ trụ gọi mời em tạm biệt những tham vọng khô khan để trở về với miền cảm xúc dịu êm. Học cách vỗ về trái tim và trao đi yêu thương vô điều kiện chính là hành trình thiêng liêng dẫn lối em đến với hạnh phúc đích thực.'
     },
     {
-      'title': 'Chiron Nhân Mã',
+      'title': 'Chiron Nghịch Hành',
       'subtitle': 'VẾT THƯƠNG CHỮA LÀNH',
       'icon': '✨',
-      'content': 'Vết thương từ những niềm tin cũ sẽ được chữa lành khi em dám tin vào trí tuệ của chính mình. Em sinh ra để truyền cảm hứng và ánh sáng tự do cho những linh hồn quanh em.'
+      'content': 'Vết thương từ quá khứ không phải là gánh nặng, mà là món quà mang tên lòng trắc ẩn. Khi em dám đối diện và ôm lấy những vùng tối trong tâm hồn, em không chỉ chữa lành cho chính mình mà còn trở thành ngọn hải đăng cho những linh hồn lạc lối.'
     },
     {
-      'title': 'Bố Cục Bập Bênh (Seesaw)',
-      'subtitle': 'SỰ CÂN BẰNG NỘI TÂM',
-      'icon': '⚖️',
-      'content': 'Dù đôi khi cảm thấy bị giằng xé giữa hai thái cực, nhưng chính sự mâu thuẫn ấy lại giúp em nhìn thấy mọi mặt của vấn đề. Hãy tìm về sự tĩnh lặng trong những điều nhỏ bé nhất.'
-    },
-    {
-      'title': 'Ưu Thế Năng Lượng',
-      'subtitle': 'BẢN SẮC & TRÍ TUỆ',
-      'icon': '🔥',
-      'content': 'Với Mặt Trời và Mặt Trăng hoạt động mạnh mẽ, em sinh ra để tỏa sáng theo cách của riêng mình. Đừng ngại ngần sống rực rỡ và lan tỏa nguồn năng lượng ấm áp này nhé.'
+      'title': 'Nghịch Hành Nội Tâm',
+      'subtitle': 'KHO BÁU ẨN GIẤU',
+      'icon': '🔄',
+      'content': 'Với Hải Vương và Diêm Vương đang "ngủ yên" trong trạng thái nghịch hành, thế giới nội tâm của em là một kho báu đầy huyền bí. Sức mạnh thực sự của em nằm ở khả năng tự chuyển hóa và làm chủ quyền lực cá nhân một cách âm thầm nhưng mãnh liệt.'
     }
   ];
+
+  static const Map<String, dynamic> retrogradePlanets = {
+    'neptune': {
+      'name': 'Hải Vương Tinh Nghịch Hành',
+      'detail': 'Thế giới nội tâm sâu thẳm như đại dương nhưng đôi khi khó diễn đạt thành lời. Em thường dè dặt hơn trong việc bộc lộ lý tưởng vì sợ bị vỡ mộng, nhưng chính sự hoài nghi ấy lại bảo vệ những giấc mơ thuần khiết nhất của em.'
+    },
+    'pluto': {
+      'name': 'Diêm Vương Tinh Nghịch Hành',
+      'detail': 'Những bài học sâu sắc về quyền lực và sự tái sinh từ bên trong. Em có xu hướng che giấu sức mạnh thật sự của mình, chờ đợi khoảnh khắc chín muồi để trỗi dậy mạnh mẽ từ những tro tàn của tổn thương.'
+    },
+    'chiron': {
+      'name': 'Chiron Nghịch Hành',
+      'detail': 'Nỗi đau là người thầy kiên nhẫn nhất. Hành trình chữa lành của em không phải là xóa bỏ vết sẹo, mà là học cách trân trọng sự bất toàn và biến nó thành nguồn năng lượng bao dung to lớn.'
+    },
+  };
+
+  static const Map<String, dynamic> elementBalance = {
+    'Đất': {
+      'status': 'Mạnh',
+      'icon': '🌱',
+      'detail': 'Em mang trong mình sự vững chãi của đất mẹ, luôn thực tế và kiên trì xây dựng những giá trị bền vững. Hãy cho phép mình thêm một chút linh hoạt để đón nhận những làn gió mới của sự thay đổi nhé.'
+    },
+    'Nước': {
+      'status': 'Thiếu',
+      'icon': '💧',
+      'detail': 'Đôi khi lý trí quá mạnh mẽ khiến em vô tình ngăn cách mình với dòng chảy cảm xúc. Học cách mở lòng và chấp nhận sự mềm mại sẽ giúp em kết nối sâu sắc hơn với chính mình và thế giới quanh em.'
+    },
+  };
+
+  static const Map<String, dynamic> modalityBalance = {
+    'Tiên phong': {
+      'status': 'Thiếu',
+      'icon': '⚡',
+      'detail': 'Thay vì vội vàng dẫn đầu, em chọn cách quan sát và phản ứng theo nhịp điệu của hoàn cảnh. Động lực thầm lặng giúp em đạt được thành tựu mà không cần phải ồn ào tranh đấu.'
+    },
+    'Kiên định': {
+      'status': 'Mạnh',
+      'icon': '🏗️',
+      'detail': 'Lòng trung thành và sự kiên định là bản sắc của em. Một khi đã xác định mục tiêu, em sẽ theo đuổi đến cùng với sự tập trung cao độ, dù đôi lúc điều này khiến em hơi khó thích nghi với cái mới.'
+    },
+    'Linh hoạt': {
+      'status': 'Thiếu',
+      'icon': '🌬️',
+      'detail': 'Em trân trọng sự nhất quán và sống thật với những giá trị cá nhân. Dù đôi khi bị xem là cứng nhắc, nhưng chính sự kiên định ấy lại là điểm tựa vững chắc nhất cho em giữa dòng đời biến động.'
+    },
+  };
+
+  static const List<Map<String, dynamic>> strongFactors = [
+    {
+      'name': 'Mặt Trời',
+      'score': 64,
+      'rank': '★★★★★',
+      'desc': 'Ánh hào quang tự nhiên giúp em luôn nổi bật và tỏa sáng theo cách riêng biệt nhất.'
+    },
+    {
+      'name': 'Mặt Trăng',
+      'score': 62,
+      'rank': '★★★★★',
+      'desc': 'Sự nhạy cảm tinh tế giúp em thấu hiểu nhịp điệu cảm xúc và lan tỏa sự ấm áp đến mọi người.'
+    },
+    {
+      'name': 'Thủy Tinh',
+      'score': 53,
+      'rank': '★★★★★',
+      'desc': 'Tư duy sắc sảo và trí tò mò vô tận giúp em luôn tìm thấy những kết nối thú vị trong cuộc sống.'
+    },
+    {
+      'name': 'Mộc Tinh',
+      'score': 66,
+      'rank': '★★★★★',
+      'desc': 'Niềm tin lạc quan và khao khát mở rộng thế giới quan là nguồn năng lượng may mắn vô hạn của em.'
+    },
+  ];
+
+  static const List<Map<String, dynamic>> lifeIndices = [
+    {
+      'title': 'Mục Đích Cuộc Sống',
+      'score': 66.97,
+      'rank': '★★★',
+      'meaning': 'Em đang đi đúng hướng, chỉ cần thêm một chút can đảm để bước ra khỏi vùng an toàn và đón nhận những sứ mệnh mới.'
+    },
+    {
+      'title': 'Tiềm Năng Phát Triển',
+      'score': 63.11,
+      'rank': '★★★',
+      'meaning': 'Cơ hội luôn hiện hữu quanh em. Sự kiên trì và kỷ luật sẽ là bệ phóng đưa em chạm đến những đỉnh cao mới.'
+    },
+    {
+      'title': 'Cân Bằng Cảm Xúc',
+      'score': 80.46,
+      'rank': '★★★★★',
+      'meaning': 'Một tâm hồn bình yên và khả năng làm chủ cảm xúc tuyệt vời giúp em luôn giữ được sự hài hòa trong cuộc sống.'
+    },
+    {
+      'title': 'Bài Học Nghiệp Quả',
+      'score': 38.56,
+      'rank': '★',
+      'meaning': 'Hãy can đảm đối diện với những nỗi sợ và rèn luyện tính kỷ luật để tìm thấy định hướng thực sự của linh hồn.'
+    },
+    {
+      'title': 'May Mắn & Thịnh Vượng',
+      'score': 88.94,
+      'rank': '★★★★★',
+      'meaning': 'Vũ trụ luôn ưu ái dành tặng em những cơ hội tuyệt vời nhờ tinh thần lạc quan và sức sống mãnh liệt.'
+    },
+  ];
+
+  static const Map<String, dynamic> personalityProfile = {
+    'mbti': 'ESTJ',
+    'title': 'Người Giám Sát',
+    'desc': 'Em là hiện thân của sự thực tế, có tổ chức và trách nhiệm. Khả năng thiết lập trật tự giúp em luôn làm chủ được mọi tình huống.',
+    'strength': 'Lãnh đạo quyết đoán, quản lý hiệu quả và luôn tận tụy với mục tiêu đề ra.',
+    'advice': 'Hãy thử mở lòng với những góc nhìn mới và lắng nghe tiếng nói của trái tim nhiều hơn.'
+  };
 }

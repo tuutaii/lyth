@@ -55,8 +55,100 @@ class LoveTab extends StatelessWidget {
           const SizedBox(height: 40),
           ...NatalData.soulJourney
               .map((journey) => _buildJourneyCard(journey, fontScale)),
+          const SizedBox(height: 48),
+          _buildBalanceSection('DÒNG CHẢY NGUYÊN TỐ', NatalData.elementBalance, fontScale),
+          const SizedBox(height: 32),
+          _buildBalanceSection('BẢN SẮC TÍNH CHẤT', NatalData.modalityBalance, fontScale),
         ],
       ),
+    );
+  }
+
+  Widget _buildBalanceSection(String title, Map<String, dynamic> data, double scale) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.philosopher(
+            fontSize: 14 * scale,
+            letterSpacing: 3,
+            fontWeight: FontWeight.bold,
+            color: AppColors.goldDeep,
+          ),
+        ),
+        const SizedBox(height: 24),
+        ...data.entries.map((entry) {
+          final item = entry.value;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.pureWhite,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceSubtle,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(item['icon'] as String, style: const TextStyle(fontSize: 24)),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            entry.key.toUpperCase(),
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12 * scale,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: item['status'] == 'Mạnh' 
+                                ? AppColors.goldDeep.withValues(alpha: 0.1)
+                                : AppColors.error.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Text(
+                              item['status'] as String,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 10 * scale,
+                                fontWeight: FontWeight.bold,
+                                color: item['status'] == 'Mạnh' ? AppColors.goldDeep : AppColors.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item['detail'] as String,
+                        style: GoogleFonts.cormorantGaramond(
+                          fontSize: 15 * scale,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 

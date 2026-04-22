@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lyth_astrology/core/constants/app_strings.dart';
+import 'package:lyth_astrology/core/constants/natal_data.dart';
 import 'package:lyth_astrology/core/theme/app_theme.dart';
 import 'package:lyth_astrology/data/models/astro_models.dart';
 import 'package:lyth_astrology/data/models/user_model.dart';
@@ -54,7 +55,30 @@ class ProfileTab extends StatelessWidget {
 
           const SizedBox(height: 48),
 
-          // 2. Tọa độ bản mệnh (Technical Data)
+          // 2. Chỉ số cuộc sống (Life Indicators)
+          _buildSectionTitle("CHỈ SỐ SINH TỒN", "LIFE INDICATORS", fontScale),
+          const SizedBox(height: 24),
+          _buildLifeIndicesSection(fontScale),
+
+          const SizedBox(height: 48),
+
+          // 3. Hồ sơ tính cách (MBTI)
+          _buildSectionTitle(
+              "CĂN TÍNH CHIÊM TINH", "PERSONALITY PROFILE", fontScale),
+          const SizedBox(height: 24),
+          _buildMBTISection(fontScale),
+
+          const SizedBox(height: 48),
+
+          // 4. Sự đồng điệu tâm hồn (Soul Resonance)
+          _buildSectionTitle(
+              "GIAO THOA TÂM HỒN", "SOUL RESONANCE", fontScale),
+          const SizedBox(height: 24),
+          _buildSoulResonanceSection(fontScale),
+
+          const SizedBox(height: 48),
+
+          // 5. Tọa độ bản mệnh (Technical Data)
           _buildSectionTitle("TỌA ĐỘ BẢN MỆNH", "TECHNICAL DATA", fontScale),
           const SizedBox(height: 24),
           _buildTechnicalDataSection(user, fontScale),
@@ -181,6 +205,239 @@ class ProfileTab extends StatelessWidget {
                     color: AppColors.textPrimary)),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLifeIndicesSection(double scale) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      child: Column(
+        children: NatalData.lifeIndices.map((index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.pureWhite,
+              borderRadius: BorderRadius.circular(24),
+              border:
+                  Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      index['title'] as String,
+                      style: GoogleFonts.philosopher(
+                        fontSize: 16 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      index['rank'] as String,
+                      style: TextStyle(
+                          color: AppColors.goldDeep, fontSize: 12 * scale),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Text(
+                      '${index['score']}%',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 24 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.goldDeep,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: (index['score'] as double) / 100,
+                          backgroundColor: AppColors.surfaceSubtle,
+                          color: AppColors.goldDeep,
+                          minHeight: 8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  index['meaning'] as String,
+                  style: GoogleFonts.cormorantGaramond(
+                    fontSize: 15 * scale,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMBTISection(double scale) {
+    const mbti = NatalData.personalityProfile;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: EdgeInsets.all(32 * scale),
+      decoration: BoxDecoration(
+        color: AppColors.pureWhite,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5)),
+        boxShadow: AppShadows.cardSoft,
+      ),
+      child: Column(
+        children: [
+          Text(
+            mbti['mbti'] as String,
+            style: GoogleFonts.philosopher(
+              fontSize: 48 * scale,
+              fontWeight: FontWeight.bold,
+              color: AppColors.goldDeep,
+              letterSpacing: 8,
+            ),
+          ),
+          Text(
+            (mbti['title'] as String).toUpperCase(),
+            style: GoogleFonts.montserrat(
+              fontSize: 12 * scale,
+              letterSpacing: 2,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            mbti['desc'] as String,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: 17 * scale,
+              height: 1.5,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Divider(color: AppColors.divider.withValues(alpha: 0.5)),
+          const SizedBox(height: 16),
+          _buildMBTIInfoRow(Icons.star_rounded, 'Điểm mạnh',
+              mbti['strength'] as String, scale),
+          const SizedBox(height: 12),
+          _buildMBTIInfoRow(Icons.lightbulb_rounded, 'Lời khuyên',
+              mbti['advice'] as String, scale),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMBTIInfoRow(
+      IconData icon, String label, String value, double scale) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20 * scale, color: AppColors.goldDeep),
+        const SizedBox(width: 12),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.cormorantGaramond(
+                fontSize: 15 * scale,
+                color: AppColors.textSecondary,
+                height: 1.4,
+              ),
+              children: [
+                TextSpan(
+                  text: '$label: ',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary),
+                ),
+                TextSpan(text: value),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSoulResonanceSection(double scale) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: EdgeInsets.all(32 * scale),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceSubtle,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: AppColors.goldDeep.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildResonanceBadge('Số 8', scale),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Icon(Icons.sync_alt_rounded,
+                    color: AppColors.goldDeep, size: 24 * scale),
+              ),
+              _buildResonanceBadge('Cự Giải', scale),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Tương hợp: 4/10',
+            style: GoogleFonts.philosopher(
+              fontSize: 20 * scale,
+              fontWeight: FontWeight.bold,
+              color: AppColors.goldDeep,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text('★★',
+              style:
+                  TextStyle(color: AppColors.goldDeep, fontSize: 16 * scale)),
+          const SizedBox(height: 16),
+          Text(
+            'Có một sự lệch hướng rõ ràng giữa con đường bạn cảm thấy tự nhiên và sứ mệnh mà bạn cần theo đuổi. Những trở ngại hiện tại thực chất là dấu hiệu cho thấy bạn cần thay đổi và bước ra khỏi vùng an toàn để hoàn thiện chính mình.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cormorantGaramond(
+              fontSize: 16 * scale,
+              height: 1.5,
+              color: AppColors.textPrimary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResonanceBadge(String text, double scale) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.pureWhite,
+        borderRadius: BorderRadius.circular(100),
+        boxShadow: AppShadows.cardSoft,
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.montserrat(
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+        ),
       ),
     );
   }

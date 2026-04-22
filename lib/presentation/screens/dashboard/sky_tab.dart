@@ -58,10 +58,90 @@ class SkyTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
+          _buildDominantsSection(fontScale),
+          const SizedBox(height: 48),
           ...NatalData.planets.values
               .map((planet) => _buildPlanetCard(planet, fontScale)),
         ],
       ),
+    );
+  }
+
+  Widget _buildDominantsSection(double scale) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'NHÂN TỐ MẠNH',
+          style: GoogleFonts.philosopher(
+            fontSize: 14 * scale,
+            letterSpacing: 3,
+            fontWeight: FontWeight.bold,
+            color: AppColors.goldDeep,
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 180 * scale,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: NatalData.strongFactors.length,
+            itemBuilder: (context, index) {
+              final factor = NatalData.strongFactors[index];
+              return Container(
+                width: 140 * scale,
+                margin: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSubtle,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.5)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      factor['name'] as String,
+                      style: GoogleFonts.philosopher(
+                        fontSize: 18 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      factor['rank'] as String,
+                      style: TextStyle(
+                          color: AppColors.goldDeep, fontSize: 12 * scale),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${factor['score']}đ',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 24 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.goldDeep,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          '✦ Đây là những hành tinh có tầm ảnh hưởng lớn nhất đến bản sắc và năng lượng của em.',
+          style: GoogleFonts.cormorantGaramond(
+            fontSize: 16,
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w600,
+            color: AppColors.goldDeep.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
     );
   }
 
