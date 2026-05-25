@@ -111,3 +111,52 @@
 .animate-shine-slow {
   animation: shine 4s infinite ease-in-out;
 }
+
+@utility bg-glass-dark {
+  background: rgba(26, 23, 20, 0.68);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(228, 191, 136, 0.22);
+}
+
+@utility bg-glass-dark-glow {
+  background: rgba(26, 23, 20, 0.84);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(228, 191, 136, 0.40);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45), 0 0 30px rgba(228, 191, 136, 0.1);
+}
+
+@keyframes soundwave {
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 12px;
+  }
+}
+
+.animate-soundwave-1 {
+  animation: soundwave 0.6s infinite alternate ease-in-out;
+}
+
+.animate-soundwave-2 {
+  animation: soundwave 0.4s infinite alternate ease-in-out 0.15s;
+}
+
+.animate-soundwave-3 {
+  animation: soundwave 0.8s infinite alternate ease-in-out 0.3s;
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s infinite linear;
+}

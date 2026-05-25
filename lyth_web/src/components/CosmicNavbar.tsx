@@ -28,11 +28,11 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[580px] px-2">
-      {/* Sleek Floating Glassmorphic Container (Light Zen Theme) */}
-      <nav className="relative flex items-center justify-between p-2 rounded-full bg-white/82 backdrop-blur-xl border border-[#d2b48c]/25 shadow-[0_15px_35px_rgba(184,153,106,0.12),_0_0_20px_rgba(210,180,140,0.06)] overflow-hidden">
+      {/* Sleek Floating Glassmorphic Container (Dark Premium Theme) */}
+      <nav className="relative flex items-center justify-between p-2 rounded-full bg-[#0f0b1e]/75 backdrop-blur-xl border border-[#e4bf88]/20 shadow-[0_15px_35px_rgba(0,0,0,0.4)] overflow-hidden">
         
         {/* Glow behind navbar tabs */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#d2b48c]/5 via-[#a9b388]/5 to-[#b89f8a]/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#e4bf88]/5 via-[#a9b388]/3 to-[#b8996a]/5 pointer-events-none" />
 
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -47,11 +47,11 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
               onMouseLeave={() => setHoveredTab(null)}
               className="relative flex flex-col items-center justify-center py-2 px-3 sm:px-4 rounded-full flex-1 transition-all duration-300 focus:outline-none cursor-pointer"
             >
-              {/* Layout Animation Pill for Active State (Zen Gold Accent) */}
+              {/* Layout Animation Pill for Active State (Dark Gold Accent) */}
               {isActive && (
                 <motion.div
                   layoutId="active-nav-glow"
-                  className="absolute inset-0 bg-gradient-to-b from-[#d2b48c]/25 to-[#f5eedc]/10 rounded-full border border-[#d2b48c]/40 shadow-[0_4px_12px_rgba(210,180,140,0.18),_inset_0_0_8px_rgba(255,255,255,0.8)]"
+                  className="absolute inset-0 bg-gradient-to-b from-[#e4bf88]/20 to-[#e4bf88]/5 rounded-full border border-[#e4bf88]/30 shadow-[0_4px_12px_rgba(228,191,136,0.15)]"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
@@ -60,7 +60,7 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
               {isHovered && !isActive && (
                 <motion.div
                   layoutId="hover-nav-glow"
-                  className="absolute inset-0 bg-[#f5eedc]/45 rounded-full border border-[#d2b48c]/10"
+                  className="absolute inset-0 bg-white/5 rounded-full border border-white/5"
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 />
               )}
@@ -70,10 +70,10 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
                 <Icon
                   className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-all duration-300 ${
                     isActive 
-                      ? "text-[#5c5240] drop-shadow-[0_1px_4px_rgba(184,153,106,0.3)] scale-110" 
+                      ? "text-[#e4bf88] drop-shadow-[0_1px_4px_rgba(228,191,136,0.3)] scale-110" 
                       : isHovered 
-                        ? "text-[#2c2520] scale-105" 
-                        : "text-[#7a7265]"
+                        ? "text-[#eae3d2] scale-105" 
+                        : "text-[#dfd9cd]"
                   }`}
                 />
                 
@@ -81,10 +81,10 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
                 <span
                   className={`text-[8px] sm:text-[9px] font-montserrat tracking-[0.2em] font-semibold transition-all duration-300 ${
                     isActive 
-                      ? "text-[#2c2520] font-bold" 
+                      ? "text-[#eae3d2] font-bold" 
                       : isHovered 
-                        ? "text-[#5c5240]" 
-                        : "text-[#ada89f]"
+                        ? "text-[#eae3d2]" 
+                        : "text-[#dfd9cd]"
                   }`}
                 >
                   {item.label}
@@ -95,7 +95,7 @@ export default function CosmicNavbar({ activeTab, onTabChange }: CosmicNavbarPro
               {isActive && (
                 <motion.div 
                   layoutId="active-dot"
-                  className="absolute bottom-1 w-1 h-1 rounded-full bg-[#b8996a] shadow-[0_0_8px_rgba(184,153,106,0.8)]"
+                  className="absolute bottom-1 w-1 h-1 rounded-full bg-[#e4bf88] shadow-[0_0_8px_rgba(228,191,136,0.8)]"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}

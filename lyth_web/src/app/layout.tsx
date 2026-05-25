@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="en"
       className={`${lora.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#F5EEDC] text-[#4A4A4A] overflow-x-hidden font-montserrat select-none">
+      <body className="min-h-full flex flex-col bg-[#12100e] text-[#eae3d2] overflow-x-hidden font-montserrat select-none">
         {children}
       </body>
     </html>
