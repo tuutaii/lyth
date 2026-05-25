@@ -18,6 +18,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Lyth - An Yên Astrologer",
   description: "Serene daily cosmic guidance, horoscope transits, and natal chart alignment from Lyth Astrology.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -27,14 +28,24 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="vi"
       className={`${lora.variable} ${montserrat.variable} h-full antialiased`}
     >
+      <head>
+        {/* Màu theme bar trên Android Chrome */}
+        <meta name="theme-color" content="#e4bf88" />
+        {/* Bắt buộc để PWA hoạt động đúng trên Safari iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Lyth" />
+        <link rel="apple-touch-icon" href="/app_icon.png" />
+      </head>
       <body className="min-h-full flex flex-col bg-[#12100e] text-[#eae3d2] overflow-x-hidden font-montserrat select-none">
         {children}
       </body>
     </html>
   );
 }
+
 
 

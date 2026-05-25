@@ -1471,19 +1471,19 @@ export default function CosmicBackground() {
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden bg-[#12100e]">
       {/* Hand-Drawn Astrology Tapestry Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full pointer-events-none" />
+      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full pointer-events-none" style={{ willChange: 'transform', transform: 'translateZ(0)' }} />
 
-      {/* Nebula ambient forest champagne/sand-gold dust clouds - Perfect harmony with the gold-white canvas drawings */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.72]">
+      {/* Nebula ambient forest champagne/sand-gold dust clouds (Optimized with radial-gradient instead of blur for Safari Performance) */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.72] mix-blend-screen" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
         {/* Celestial Warm Amber celestial nebula at top (y: 0 - 800) */}
-        <div className="absolute top-[2%] left-[10%] w-[65vw] h-[65vw] rounded-full bg-gradient-to-tr from-[#2d2212]/55 via-[#18140c]/30 to-transparent blur-[120px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[120vw] h-[120vw] md:w-[80vw] md:h-[80vw] rounded-full bg-[radial-gradient(circle_at_center,rgba(45,34,18,0.5)_0%,rgba(24,20,12,0.2)_40%,transparent_70%)]" />
         
         {/* Soft Glowing Bronze/Sand-Gold mist on transition (y: 800 - 1800) */}
-        <div className="absolute top-[32%] right-[5%] w-[55vw] h-[55vw] rounded-full bg-gradient-to-bl from-[#332916]/40 via-[#1a170f]/20 to-transparent blur-[130px]" />
+        <div className="absolute top-[20%] right-[-10%] w-[100vw] h-[100vw] md:w-[70vw] md:h-[70vw] rounded-full bg-[radial-gradient(circle_at_center,rgba(51,41,22,0.35)_0%,rgba(26,23,15,0.15)_40%,transparent_70%)]" />
         
         {/* Deep Mystical Sand-Gold & Champagne Bronze glow at the forest floor bottom (y: 1800 - 3500) */}
-        <div className="absolute bottom-[22%] left-[2%] w-[75vw] h-[75vw] rounded-full bg-gradient-to-tr from-[#3a2e19]/45 via-[#211a0f]/45 to-transparent blur-[140px]" />
-        <div className="absolute bottom-[2%] right-[6%] w-[65vw] h-[65vw] rounded-full bg-gradient-to-tl from-[#221c10]/35 via-[#14120a]/25 to-transparent blur-[125px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[130vw] h-[130vw] md:w-[90vw] md:h-[90vw] rounded-full bg-[radial-gradient(circle_at_center,rgba(58,46,25,0.4)_0%,rgba(33,26,15,0.3)_40%,transparent_70%)]" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[110vw] h-[110vw] md:w-[80vw] md:h-[80vw] rounded-full bg-[radial-gradient(circle_at_center,rgba(34,28,16,0.3)_0%,rgba(20,18,10,0.2)_40%,transparent_70%)]" />
       </div>
 
       {/* Premium Cinematic Vignette shade - slightly lighter for better readability and integration */}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import CosmicBackground from "@/components/CosmicBackground";
 import StellarCarousel from "@/components/StellarCarousel";
 import CosmicNavbar from "@/components/CosmicNavbar";
+import NotificationBell from "@/components/NotificationBell";
 import { fetchDailyMessages, DailyMessage } from "@/lib/firebase-mock";
 import { Star, User, Compass, RefreshCw, ChevronLeft, Sparkles, BookOpen, Sun, Activity, Zap, ShieldAlert, Layers, Music, Volume2, VolumeX, Heart, Sparkle, Key } from "lucide-react";
 import * as NatalData from "@/lib/natal-data";
@@ -153,7 +154,7 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-lg bg-glass-dark border border-[#e4bf88]/20 p-8 rounded-3xl shadow-[0_12px_45px_rgba(0,0,0,0.5)]"
+            className="w-full max-w-lg bg-glass-dark border border-[#e4bf88]/20 p-6 md:p-8 rounded-3xl shadow-[0_12px_45px_rgba(0,0,0,0.5)]"
           >
             <h3 className="text-sm tracking-[0.2em] text-[#e4bf88] font-montserrat uppercase font-bold text-center mb-6">
               Nhập Thông Tin Khởi Tạo
@@ -216,7 +217,7 @@ export default function Home() {
             </form>
           </motion.div>
         ) : isGeneratingChart ? (
-          <div className="w-full max-w-lg bg-glass-dark border border-[#e4bf88]/20 p-10 rounded-3xl shadow-[0_12px_45px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center text-center gap-6 min-h-[300px]">
+          <div className="w-full max-w-lg bg-glass-dark border border-[#e4bf88]/20 p-6 md:p-10 rounded-3xl shadow-[0_12px_45px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center text-center gap-6 min-h-[300px]">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -1225,6 +1226,7 @@ Yêu cầu đầu ra: Hãy trả về duy nhất một đối tượng JSON chu�
 
                 {/* Mobile User Panel info (Hidden on Desktop) */}
                 <div className="flex md:hidden items-center gap-2.5">
+                  <NotificationBell />
                   <button 
                     onClick={toggleMusic}
                     aria-label="Toggle cosmic ambient music"
@@ -1374,6 +1376,7 @@ Yêu cầu đầu ra: Hãy trả về duy nhất một đối tượng JSON chu�
 
               {/* Desktop User Panel info (Hidden on Mobile) */}
               <div className="hidden md:flex items-center gap-3.5">
+                <NotificationBell />
                 {/* Music Wave Player */}
                 <button 
                   onClick={toggleMusic}
@@ -1421,7 +1424,7 @@ Yêu cầu đầu ra: Hãy trả về duy nhất một đối tượng JSON chu�
             </header>
 
             {/* Dashboard Contents */}
-            <main className="flex-1 flex flex-col items-center justify-start py-6 md:py-10 z-10 w-full max-w-5xl mx-auto px-4 gap-20">
+            <main className="flex-1 flex flex-col items-center justify-start py-6 pb-28 md:py-10 md:pb-10 z-10 w-full max-w-5xl mx-auto px-3 sm:px-4 gap-16 md:gap-20">
               {activeTab === "messages" && (
                 <>
                   {/* HERO INTRO SECTION: TAP TO UNVEIL ORACLE */}

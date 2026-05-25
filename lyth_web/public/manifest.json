@@ -1,0 +1,35 @@
+{
+  "name": "Lyth — An Yên Astrologer",
+  "short_name": "Lyth",
+  "description": "Hành trình chiêm tinh học cá nhân hóa. Thông điệp vũ trụ mỗi ngày từ An Yên Astrologer.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12100e",
+  "theme_color": "#e4bf88",
+  "lang": "vi",
+  "categories": ["lifestyle", "health", "entertainment"],
+  "icons": [
+    {
+      "src": "/app_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Thông Điệp Hôm Nay",
+      "short_name": "Thông điệp",
+      "description": "Xem thông điệp chiêm tinh ngày hôm nay",
+      "url": "/?tab=messages",
+      "icons": [{ "src": "/app_icon.png", "sizes": "192x192" }]
+    }
+  ]
+}
