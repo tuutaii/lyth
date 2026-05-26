@@ -38,7 +38,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Lyth" />
-        <link rel="apple-touch-icon" href="/app_icon.png" />
+        <link rel="apple-touch-icon" href="/app_icon.jpg" />
       </head>
       <body className="min-h-full flex flex-col bg-[#12100e] text-[#eae3d2] overflow-x-hidden font-montserrat select-none">
         {children}

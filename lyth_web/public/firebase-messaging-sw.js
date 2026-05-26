@@ -30,8 +30,8 @@ messaging.onBackgroundMessage(function (payload) {
   const notificationTitle = payload.notification?.title || '✨ Lyth — An Yên Astrologer';
   const notificationOptions = {
     body: payload.notification?.body || 'Có thông điệp mới từ vũ trụ dành cho bạn!',
-    icon: '/app_icon.png',
-    badge: '/app_icon.png',
+    icon: '/app_icon.jpg',
+    badge: '/app_icon.jpg',
     image: payload.notification?.image || null,
     data: {
       url: payload.data?.url || '/',

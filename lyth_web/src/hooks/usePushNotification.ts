@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getToken, onMessage } from 'firebase/messaging';
-import { getFirebaseMessaging } from '@/lib/firebase';
+import { getFirebaseMessaging, db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 // VAPID Key lấy từ Firebase Console > Project Settings > Cloud Messaging > Web Push Certificates
 const VAPID_KEY = 'BM-HQt8Jk_-fd2iv6vSEPUYI7VxVvlUn1NOnKflhQIxC2lLR6JDFe4fc6a1mmYEq46PKM8onbxHlgrPjMlzO0Qc';
@@ -29,20 +30,30 @@ export function usePushNotification(): UsePushNotificationReturn {
         return;
       }
 
-      // Đợi Service Worker sẵn sàng rồi mới lấy token
-      const swRegistration = await navigator.serviceWorker.ready;
-
-      // getToken() trả về chuỗi token định danh duy nhất cho thiết bị này
+      // getToken() tự động liên kết và đăng ký Service Worker '/firebase-messaging-sw.js' mặc định
       const token = await getToken(messaging, {
         vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: swRegistration,
       });
 
       if (token) {
         console.log('[usePushNotification] ✅ FCM Token:', token);
         setFcmToken(token);
-        // TODO: Gửi token lên Firestore để backend lưu và gửi thông báo sau này
-        // Ví dụ: await saveTokenToFirestore(userId, token);
+        
+        // Tự động lưu Token và cấu hình giờ nhận thông báo mặc định vào Firestore
+        if (typeof window !== "undefined") {
+          let userId = localStorage.getItem("lyth_user_id");
+          if (!userId) {
+            userId = "user_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem("lyth_user_id", userId);
+          }
+          const defaultTime = localStorage.getItem("lyth_noti_time") || "09:00";
+          await setDoc(doc(db, "users", userId), {
+            fcmToken: token,
+            notificationTime: defaultTime,
+            updatedAt: new Date().toISOString(),
+          }, { merge: true });
+          console.log('[usePushNotification] ✅ Auto-saved token to Firestore for user:', userId);
+        }
       } else {
         console.warn('[usePushNotification] ⚠️ Không lấy được token — kiểm tra quyền và VAPID Key.');
       }
@@ -62,11 +73,15 @@ export function usePushNotification(): UsePushNotificationReturn {
       .catch((err) => console.error('[usePushNotification] ❌ SW thất bại:', err));
 
     // Đồng bộ trạng thái quyền đã cấp từ lần trước (không hỏi lại người dùng)
-    if (Notification.permission === 'granted') {
-      setPermissionStatus('granted');
-      fetchFcmToken();
-    } else if (Notification.permission === 'denied') {
-      setPermissionStatus('denied');
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        setPermissionStatus('granted');
+        fetchFcmToken();
+      } else if (Notification.permission === 'denied') {
+        setPermissionStatus('denied');
+      }
+    } else {
+      setPermissionStatus('unsupported');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

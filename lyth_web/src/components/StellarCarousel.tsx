@@ -52,6 +52,7 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 75, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
           className="absolute w-[500px] h-[500px] rounded-full border border-dashed border-[#e4bf88]/25 flex items-center justify-center"
         >
           {/* Tic marks and zodiac points */}
@@ -65,6 +66,7 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
           className="absolute w-[400px] h-[400px] rounded-full border border-dashed border-[#e4bf88]/15 flex items-center justify-center"
         >
           <div className="absolute top-1/4 left-1/4 w-1.5 h-1.5 rounded-full bg-[#d97b6c]" />
@@ -75,6 +77,7 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
           className="absolute w-[300px] h-[300px] rounded-full border border-dotted border-[#e4bf88]/10"
         />
       </div>
@@ -134,7 +137,6 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
                 rotateY: 0,
                 z: 0,
                 opacity: 1,
-                filter: "blur(0px)",
                 zIndex: 30,
               },
               left: {
@@ -143,7 +145,6 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
                 rotateY: isMobile ? 40 : 32,
                 z: isMobile ? -160 : -120,
                 opacity: 0.45,
-                filter: "blur(2.5px)",
                 zIndex: 20,
               },
               right: {
@@ -152,7 +153,6 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
                 rotateY: isMobile ? -40 : -32,
                 z: isMobile ? -160 : -120,
                 opacity: 0.45,
-                filter: "blur(2.5px)",
                 zIndex: 20,
               }
             };
@@ -180,13 +180,14 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
                   isActive 
                     ? `from-[#e4bf88]/35 via-transparent to-[#a9b388]/20` 
                     : `from-white/[0.02] to-transparent`
-                } backdrop-blur-2xl transition-shadow duration-500 ${
+                } transition-shadow duration-500 ${
                   isActive 
                     ? "cursor-grab active:cursor-grabbing shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)]" 
                     : "cursor-pointer hover:shadow-md"
                 }`}
                 style={{
                   transformStyle: "preserve-3d",
+                  willChange: "transform, opacity",
                 }}
               >
                 {/* Internal Card Border Glow & Styling */}
@@ -195,8 +196,8 @@ export default function StellarCarousel({ messages }: StellarCarouselProps) {
                 } p-6 flex flex-col justify-between overflow-hidden relative group`}>
                   
                   {/* Glyph Watermark background */}
-                  <div className="absolute right-[-20px] top-[15%] text-[240px] font-lora font-extrabold text-[#e4bf88]/[0.025] pointer-events-none select-none">
-                    {message.glyph}
+                  <div className="absolute right-[-20px] top-[15%] text-[240px] font-lora font-extrabold text-[#e4bf88] opacity-[0.02] z-0 pointer-events-none select-none">
+                    {message.glyph + "\uFE0E"}
                   </div>
 
                   {/* Glass shimmer sweep effect on active */}

@@ -7,8 +7,9 @@ import CosmicBackground from "@/components/CosmicBackground";
 import StellarCarousel from "@/components/StellarCarousel";
 import CosmicNavbar from "@/components/CosmicNavbar";
 import NotificationBell from "@/components/NotificationBell";
+import { usePushNotification } from "@/hooks/usePushNotification";
 import { fetchDailyMessages, DailyMessage } from "@/lib/firebase-mock";
-import { Star, User, Compass, RefreshCw, ChevronLeft, Sparkles, BookOpen, Sun, Activity, Zap, ShieldAlert, Layers, Music, Volume2, VolumeX, Heart, Sparkle, Key } from "lucide-react";
+import { Star, User, Compass, RefreshCw, ChevronLeft, Sparkles, BookOpen, Sun, Activity, Zap, ShieldAlert, Layers, Music, Volume2, VolumeX, Heart, Sparkle, Key, Loader2 } from "lucide-react";
 import * as NatalData from "@/lib/natal-data";
 import { 
   cosmicAudio, 
@@ -47,6 +48,7 @@ const majorArcanaTarotDeck = [
 ];
 
 export default function Home() {
+  const { permissionStatus, requestPermission } = usePushNotification();
   const [messages, setMessages] = useState<DailyMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("Calibrating cosmic alignment...");
@@ -1113,6 +1115,117 @@ Yêu cầu đầu ra: Hãy trả về duy nhất một đối tượng JSON chu�
     };
   }, []);
 
+  // Full-screen Notification Permission Gate Overlay
+  const renderPermissionGate = () => {
+    const isUnsupported = permissionStatus === "unsupported";
+    const isDenied = permissionStatus === "denied";
+    const isLoading = permissionStatus === "loading";
+
+    return (
+      <motion.div
+        key="permission-gate"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] bg-[#12100e] flex flex-col items-center justify-center p-6 text-center select-none"
+      >
+        {/* Soft glowing background nebulas */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#e4bf88]/10 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full blur-[100px] bg-[#a9b388]/5 pointer-events-none" />
+
+        <div className="relative flex flex-col items-center max-w-sm px-6 gap-6 z-10">
+          {/* Logo with pulsating celestial ring */}
+          <div className="relative w-28 h-28 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border border-dashed border-[#e4bf88]/30 animate-spin-slow" />
+            <div className="absolute inset-2 rounded-full border border-dotted border-[#e4bf88]/20 animate-spin-slow reverse" />
+            <div className="w-16 h-16 rounded-full border border-[#e4bf88]/30 flex items-center justify-center bg-[#0a0715]/60 backdrop-blur-md overflow-hidden shadow-[0_0_25px_rgba(228,191,136,0.2)] animate-pulse">
+              <Image
+                src="/app_icon.jpg"
+                alt="Lyth Logo"
+                width={48}
+                height={48}
+                priority
+                className="object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Heading */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] tracking-[0.35em] text-[#e4bf88] font-montserrat uppercase font-bold">
+              ✦ Lyth Cosmic Gate ✦
+            </span>
+            <h2 className="text-xl sm:text-2xl font-lora font-bold text-[#eae3d2] tracking-wide uppercase leading-snug">
+              {isUnsupported ? "Thêm Vào Màn Hình Chính" : "Kích Hoạt Thông Điệp"}
+            </h2>
+            <div className="w-12 h-[1.5px] bg-[#e4bf88]/40 mx-auto mt-2" />
+          </div>
+
+          {/* Core instruction text */}
+          <div className="text-xs leading-relaxed text-[#dfd9cd] font-montserrat font-light px-2">
+            {isUnsupported ? (
+              <div className="flex flex-col gap-3 text-justify sm:text-center">
+                <p>
+                  Để bắt đầu nhận thông điệp chiêm tinh ngày mới và sử dụng Lyth, em vui lòng thêm ứng dụng vào Màn hình chính (PWA):
+                </p>
+                <div className="bg-white/5 border border-white/5 p-3.5 rounded-2xl flex flex-col gap-2 text-left">
+                  <p className="flex gap-2"><strong className="text-[#e4bf88]">1.</strong> Nhấn nút <strong>Chia sẻ (Share)</strong> trên trình duyệt Safari.</p>
+                  <p className="flex gap-2"><strong className="text-[#e4bf88]">2.</strong> Cuộn xuống và chọn <strong>"Thêm vào MH chính" (Add to Home Screen)</strong>.</p>
+                  <p className="flex gap-2"><strong className="text-[#e4bf88]">3.</strong> Mở ứng dụng từ Màn hình chính để kích hoạt.</p>
+                </div>
+              </div>
+            ) : isDenied ? (
+              <div className="flex flex-col gap-3 text-center">
+                <p className="text-red-400/90 font-medium">
+                  Quyền thông báo đang bị tắt trên thiết bị của em.
+                </p>
+                <p>
+                  Lyth cần quyền này để gửi thông điệp ngày mới. Vui lòng vào <strong>Cài đặt trình duyệt / Cài đặt thiết bị</strong> để bật lại quyền thông báo cho trang web này em nhé!
+                </p>
+              </div>
+            ) : (
+              <p>
+                Chào mừng em đến với Lyth. Để tiếp nhận thông điệp linh hồn mỗi ngày và bắt đầu hành trình chiêm tinh, em vui lòng kích hoạt quyền nhận thông báo của thiết bị nhé.
+              </p>
+            )}
+          </div>
+
+          {/* Action button */}
+          {!isUnsupported && !isDenied && (
+            <button
+              onClick={requestPermission}
+              disabled={isLoading}
+              className="mt-2 w-full px-6 py-4 rounded-xl bg-gradient-to-r from-[#b8996a] to-[#e4bf88] text-[#050409] font-montserrat font-bold text-xs tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_4px_22px_rgba(228,191,136,0.3)] hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Đang kết nối...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Kích Hoạt Nhận Tin
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Refresh / Retry options */}
+          {(isUnsupported || isDenied) && (
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-xs text-[#eae3d2] hover:bg-white/10 transition-all font-montserrat font-semibold cursor-pointer"
+            >
+              Thử Lại / Tải Lại Trang
+            </button>
+          )}
+
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden">
       {/* 1. Immersive Space starfield and nebula canvas */}
@@ -1188,6 +1301,8 @@ Yêu cầu đầu ra: Hãy trả về duy nhất một đối tượng JSON chu�
               </motion.div>
             </div>
           </motion.div>
+        ) : permissionStatus !== "granted" ? (
+          renderPermissionGate()
         ) : (
           // Main Dashboard Panel (Dark Premium theme)
           <motion.div

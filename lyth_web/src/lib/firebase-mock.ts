@@ -1,4 +1,4 @@
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, documentId, where } from "firebase/firestore";
 import { db } from "./firebase";
 
 export interface DailyMessage {
@@ -113,7 +113,7 @@ function formatDateKey(dateKey: string): string {
 function mapCategory(cat: string): "TRANSIT" | "MOON PHASE" | "ALIGNMENT" | "STELLAR WISDOM" | "SOLSTICE" {
   const upper = (cat || "").toUpperCase();
   if (upper === "ENERGY") return "ALIGNMENT";
-  if (upper === "LOVE") return "TRANSIT";
+  if (upper === "LOVE" || upper === "RELATIONSHIP") return "TRANSIT";
   if (upper === "IDENTITY") return "STELLAR WISDOM";
   if (upper === "MINDSET") return "MOON PHASE";
   
@@ -180,21 +180,41 @@ function mapColorTheme(cat: string, hex?: string): { theme: string; glow: string
 export async function fetchDailyMessages(): Promise<DailyMessage[]> {
   try {
     const dailyMessagesRef = collection(db, "daily_messages");
-    // Just fetch the latest documents (up to 20 to be safe and avoid long lists) without sorting.
-    // This avoids requiring Firestore composite indexes!
-    const q = query(dailyMessagesRef, limit(20));
-    const querySnapshot = await getDocs(q);
     
-    if (querySnapshot.empty) {
+    // Calculate today's date string in YYYY-MM-DD format
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    
+    // Try primary query: Fetch today and future dates (ascending order).
+    // This range query on documentId is built-in and DOES NOT require a composite index!
+    const primaryQuery = query(
+      dailyMessagesRef, 
+      where(documentId(), ">=", todayStr), 
+      limit(3)
+    );
+    let querySnapshot = await getDocs(primaryQuery);
+    let docs = querySnapshot.docs;
+    
+    // Fallback: If no future documents exist or we have fewer than 3,
+    // fetch a larger batch of documents without ordering (which avoids index requirements)
+    // and sort them descending in memory.
+    if (docs.length < 3) {
+      console.log("[fetchDailyMessages] ⚠️ Fewer than 3 future/today messages found. Fetching recent docs fallback.");
+      const fallbackQuery = query(dailyMessagesRef, limit(100));
+      const fallbackSnapshot = await getDocs(fallbackQuery);
+      
+      const sortedDocs = [...fallbackSnapshot.docs].sort((a, b) => b.id.localeCompare(a.id));
+      docs = sortedDocs.slice(0, 3);
+      
+      // Since fallback returns them in descending order (newest first),
+      // we reverse them to match the ascending date progression (today -> tomorrow -> 2 days)
+      docs.reverse();
+    }
+    
+    if (docs.length === 0) {
       console.warn("⚠️ No daily messages found in Firestore. Falling back to mock data.");
       return getDynamicMockMessages();
     }
-    
-    // Sort documents by document ID (which is YYYY-MM-DD date key) descending in JavaScript memory
-    const sortedDocs = [...querySnapshot.docs].sort((a, b) => b.id.localeCompare(a.id));
-    
-    // Take the 3 most recent documents from Firestore to represent the 3 days
-    const recentDocs = sortedDocs.slice(0, 3);
     
     const messages: DailyMessage[] = [];
     
@@ -209,7 +229,7 @@ export async function fetchDailyMessages(): Promise<DailyMessage[]> {
       { sign: "ARIES", glyph: "♈" }
     ];
     
-    recentDocs.forEach((doc, idx) => {
+    docs.forEach((doc, idx) => {
       const data = doc.data();
       const dateKey = doc.id;
       
@@ -227,8 +247,12 @@ export async function fetchDailyMessages(): Promise<DailyMessage[]> {
         title: data.header || "Stellar Alignment",
         message: data.body || "Vũ trụ đang gửi tín hiệu tốt lành tới bạn.",
         energyScore: 75 + (Math.abs(hashCode(dateKey)) % 25),
-        focus: data.luckyColorName ? `Màu may mắn: ${data.luckyColorName}` : "Self-Wisdom",
-        celestialAspect: data.luckyColorMeaning || "Cosmic Alignment",
+        focus: data.luckyColorName 
+          ? `Màu may mắn: ${data.luckyColorName}` 
+          : (data.dos && data.dos.length > 0 ? `Nên: ${data.dos[0]}` : "Self-Wisdom"),
+        celestialAspect: data.luckyColorMeaning 
+          ? data.luckyColorMeaning 
+          : (data.donts && data.donts.length > 0 ? `Tránh: ${data.donts[0]}` : "Cosmic Alignment"),
         colorTheme: theme,
         glowColor: glow,
       });
