@@ -54,19 +54,31 @@ def send_notifications():
     title = msg_data.get("header", "✨ Thông điệp vũ trụ hôm nay")
     body = msg_data.get("body", "Mở Lyth để xem thông điệp ngày mới dành riêng cho em.")
     
-    # 2. Truy vấn các user có fcmToken và cài đặt nhận tin trùng với giờ hiện tại
+    # 2. Truy vấn tất cả các user có fcmToken
     users_ref = db.collection("users")
-    users = users_ref.where("notificationTime", "==", current_time_str).get()
+    users = users_ref.get()
     
     tokens = []
+    users_to_update = []
+    
     for u in users:
         u_data = u.to_dict()
         token = u_data.get("fcmToken")
-        if token:
+        noti_time = u_data.get("notificationTime")
+        last_sent = u_data.get("lastSentDate")
+        
+        if not token or not noti_time:
+            continue
+            
+        # Kiểm tra điều kiện:
+        # - Giờ hẹn (noti_time) <= Giờ hiện tại (current_time_str)
+        # - Và chưa nhận thông báo ngày hôm nay (last_sent != today_str)
+        if noti_time <= current_time_str and last_sent != today_str:
             tokens.append(token)
+            users_to_update.append(u.reference)
             
     if not tokens:
-        print(f"ℹ️ Không có user nào đặt lịch nhận thông báo vào lúc {current_time_str}.")
+        print(f"ℹ️ Không có user nào cần gửi thông báo tại thời điểm này ({current_time_str}).")
         return
         
     print(f"📣 Tìm thấy {len(tokens)} thiết bị cần gửi thông báo.")
@@ -94,9 +106,17 @@ def send_notifications():
     try:
         response = messaging.send_multicast(message)
         print(f"✅ Gửi thành công: {response.success_count} thông báo.")
+        
+        # Cập nhật trạng thái đã gửi hôm nay vào Firestore để tránh trùng lặp
+        batch = db.batch()
+        for ref in users_to_update:
+            batch.update(ref, {"lastSentDate": today_str})
+        batch.commit()
+        print("💾 Đã cập nhật trạng thái gửi (lastSentDate) cho người dùng.")
+        
         if response.failure_count > 0:
             print(f"❌ Thất bại: {response.failure_count} thông báo.")
-            # Quét các token bị lỗi (ví dụ user đã gỡ app/hủy quyền) để làm sạch database
+            # Quét các token bị lỗi để làm sạch database
             for index, resp in enumerate(response.responses):
                 if not resp.success:
                     print(f"   - Lỗi Token ở vị trí {index}: {resp.exception}")
