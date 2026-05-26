@@ -13,13 +13,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Nâng cấp lên v4 để tránh cảnh báo Node.js 20 deprecation
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Nâng cấp lên v5 và loại bỏ cache: 'pip' để tránh lỗi tìm requirements.txt
         with:
           python-version: '3.10'
-          cache: 'pip' # Caching pip dependencies để tăng tốc độ chạy lần sau
 
       - name: Install dependencies
         run: |
