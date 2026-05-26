@@ -2,8 +2,9 @@ name: Send Daily Push Notifications
 
 on:
   schedule:
-    # Chạy mỗi 5 phút một lần
-    - cron: '*/5 * * * *'
+    # Tối ưu cho Repo Private: Chạy mỗi 30 phút một lần (tiết kiệm phút miễn phí của GitHub Actions)
+    # Tổng tiêu thụ: 48 lần/ngày * 30 ngày = 1440 phút/tháng (nằm hoàn toàn trong hạn mức 2000 phút free của Private Repo)
+    - cron: '*/30 * * * *'
   # Cho phép kích hoạt chạy thử thủ công bằng nút "Run workflow" trên GitHub
   workflow_dispatch:
 
@@ -13,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Nâng cấp lên v4 để tránh cảnh báo Node.js 20 deprecation
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # Nâng cấp lên v5 và loại bỏ cache: 'pip' để tránh lỗi tìm requirements.txt
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 

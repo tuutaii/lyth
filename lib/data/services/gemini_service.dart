@@ -6,10 +6,14 @@ import 'package:lyth_astrology/data/models/astro_models.dart';
 import 'package:lyth_astrology/data/services/astro_data_mapper.dart';
 
 class GeminiService {
-  final String _apiKey = "AIzaSyDJfa9G-uroJCdQ_nbCXKec-Zt-qJnFtWI";
+  // Đọc an toàn từ tham số build/run: --dart-define=GEMINI_API_KEY=your_key_here
+  static const String _apiKey = String.fromEnvironment('GEMINI_API_KEY');
   late final GenerativeModel _model;
 
   GeminiService() {
+    if (_apiKey.isEmpty) {
+      debugPrint("⚠️ CẢNH BÁO: GEMINI_API_KEY chưa được cấu hình! Vui lòng khởi chạy hoặc build ứng dụng bằng cách truyền thêm: --dart-define=GEMINI_API_KEY=your_key_here");
+    }
     _model = GenerativeModel(
       model: 'gemini-3-flash-preview',
       apiKey: _apiKey,
